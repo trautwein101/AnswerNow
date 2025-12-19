@@ -1,0 +1,85 @@
+﻿using AnswerNow.Business.DTOs;
+using AnswerNow.Business.IServices;
+using AnswerNow.Business.Mappings;
+using Microsoft.AspNetCore.Mvc;
+
+namespace AnswerNow.Api.Controllers
+{
+
+    [ApiController]
+    [Route("api/[controller]")]
+    public class AnswerController : ControllerBase
+    {
+
+        private readonly IAnswerService _answerService;
+
+        public AnswerController(IAnswerService answerService)
+        {
+            _answerService = answerService;
+        }
+
+
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<AnswerDto>>> GetByQuestion(int questionId)
+        {
+            var answers = await _answerService.GetByQuestionIdAsync(questionId);
+
+            var result = answers.Select(a => a.ToDto());
+
+            return Ok(result);
+
+        }
+
+
+        [HttpGet("{id:int}")]
+        public async Task<ActionResult<AnswerDto>> GetById(int id)
+        {
+            var answer = await _answerService.GetByIdAsync(id);
+
+            if (answer == null)
+            {
+                return NotFound(); //404
+            }
+
+            return Ok(answer.ToDto());
+        }
+
+
+        [HttpPost]
+        public async Task<ActionResult<AnswerDto>> Create(int questionId, [FromBody] AnswerDto dto)
+        {
+
+            if (!ModelState.IsValid)
+            {
+                return ValidationProblem(ModelState);
+            }
+
+            dto.QuestionId = questionId;
+
+            var entity = dto.ToEntity();
+
+            var created = await _answerService.CreateAsync(entity);
+
+            var createdDto = created.ToDto();
+
+            return CreatedAtAction(nameof(GetById), new { id = createdDto.Id }, createdDto);
+
+        }
+
+
+        // POST /api/Answer/5/vote?isUpVote=true
+        [HttpPost("{id:int}/vote")]
+        public async Task<ActionResult<AnswerDto>> Vote(int id, [FromQuery] bool isUpVote)
+        {
+            var answer = await _answerService.VoteAsync(id, isUpVote);
+
+            if (answer == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(answer.ToDto());
+        }
+
+    }
+}

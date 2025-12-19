@@ -1,0 +1,40 @@
+﻿using AnswerNow.Business.DTOs;
+using AnswerNow.Domain.Models;
+
+namespace AnswerNow.Business.Mappings
+{
+    public static class AnswerMappings
+    {
+
+        public static AnswerDto ToDto(this Answer entity) 
+        {
+            return new AnswerDto
+            {
+                Id = entity.Id,
+                QuestionId = entity.QuestionId,
+                Body = entity.Body,
+                CreatedBy = entity.CreatedBy,
+                UpVotes = entity.UpVotes,
+                DownVotes = entity.DownVotes,
+                DateCreated = entity.DateCreated,
+                DateUpdated = entity.DateUpdated
+            };  
+        }
+
+        public static Answer ToEntity(this AnswerDto dto)
+        {
+            return new Answer
+            {
+                Id = dto.Id,
+                QuestionId = dto.QuestionId,
+                Body = dto.Body,
+                CreatedBy = dto.CreatedBy,
+                UpVotes = dto.UpVotes,
+                DownVotes = dto.DownVotes,
+                DateCreated = dto.DateCreated,
+                DateUpdated = dto.DateUpdated
+            };
+        }
+
+    }
+}
