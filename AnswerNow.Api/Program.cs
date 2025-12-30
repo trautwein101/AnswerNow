@@ -85,11 +85,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseGlobalExceptionHandling();
+
 app.UseHttpsRedirection();
 
 app.UseCors(corsPolicyName);
-
-app.UseGlobalExceptionHandling();
 
 app.UseAuthentication();
 app.UseAuthorization();

@@ -100,7 +100,7 @@ namespace AnswerNow.Business.Services
             };
 
             //Signing Key
-            var secretKey = _configuration["Jwt:Secretkey"];
+            var secretKey = _configuration["Jwt:SecretKey"];
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey!));
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
@@ -178,7 +178,7 @@ namespace AnswerNow.Business.Services
             //rotate the refresh token
             await _refreshTokenRepository.RevokeAsync(dto.RefreshToken, "Replaced by new token");
 
-            //user is already a domain modle from the mapping
+            //user is already a domain model from the mapping
             return await GenerateAuthResponse(storedToken.User);
 
         }

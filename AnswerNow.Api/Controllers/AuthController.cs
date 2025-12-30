@@ -64,7 +64,8 @@ namespace AnswerNow.Api.Controllers
             return Ok(result); // 200 OK status
         }
 
-        //Refresh Token ~ will exchange a valid refresh token for a new access token
+
+        //Refresh Token ~ will exchange a valid refresh token for a new access token ~ refresh token validation
         //POST /api/auth/refresh
         [HttpPost("refresh")]
         public async Task<ActionResult<AuthResponseDto>> Refresh([FromBody] RefreshTokenRequestDto dto)
@@ -79,7 +80,7 @@ namespace AnswerNow.Api.Controllers
             //token invalid, expired or already in use
             if(result == null)
             {
-                return Unauthorized(new { message = "Invalid or expired refresh token" });
+                return Unauthorized(new { message = "Invalid or expired refresh token" }); // 401 Unauthorized ~ not 400 validation problem
             }
 
             return Ok(result);
