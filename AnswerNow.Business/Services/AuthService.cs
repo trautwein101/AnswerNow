@@ -27,19 +27,19 @@ namespace AnswerNow.Business.Services
         }
 
         // Register New User
-        public async Task<AuthResponseDto?> RegisterAsync(RegisterDto dto)
+        public async Task<AuthResponse?> RegisterAsync(Register register)
         {
-            if (await _userRepository.EmailExistsAsync(dto.Email))
+            if (await _userRepository.EmailExistsAsync(register.Email))
             {
                 return null; //email is already taken
             }
 
-            var passwordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password);
+            var passwordHash = BCrypt.Net.BCrypt.HashPassword(register.Password);
 
             var user = new User
             {
-                Email = dto.Email,
-                DisplayName = dto.DisplayName,
+                Email = register.Email,
+                DisplayName = register.DisplayName,
                 PasswordHash = passwordHash
             };
 
@@ -51,10 +51,10 @@ namespace AnswerNow.Business.Services
         }
 
         //Login Existing User
-        public async Task<AuthResponseDto?> LoginAsync(LoginDto dto)
+        public async Task<AuthResponse?> LoginAsync(Login login)
         {
 
-            var user = await _userRepository.GetByEmailAsync(dto.Email);
+            var user = await _userRepository.GetByEmailAsync(login.Email);
 
 
             if (user == null)
@@ -63,7 +63,7 @@ namespace AnswerNow.Business.Services
             }
 
             //extracts salt from hash and re-hashes
-            if (!BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
+            if (!BCrypt.Net.BCrypt.Verify(login.Password, user.PasswordHash))
             {
                 return null;  // Wrong password
             }
@@ -87,7 +87,7 @@ namespace AnswerNow.Business.Services
         }
 
         // JWT Token Generation - for both access token and refresh token
-        private async Task<AuthResponseDto> GenerateAuthResponse(User user)
+        private async Task<AuthResponse> GenerateAuthResponse(User user)
         {
    
             //Claims
@@ -127,16 +127,13 @@ namespace AnswerNow.Business.Services
                 _configuration.GetValue<int>("Jwt:RefreshTokenExpirationDays", 7));
 
             //Return both tokens
-            return new AuthResponseDto
+            return new AuthResponse
             {
                 AccessToken = accessToken,
                 AccessTokenExpiration = accessTokenExpiration,
                 RefreshToken = refreshToken,
                 RefreshTokenExpiration = refreshTokenExpiration,
-                UserId = user.Id,
-                Email = user.Email,
-                DisplayName = user.DisplayName,
-                Role = user.Role.ToString()
+                User = user
             };
 
         }
@@ -165,10 +162,11 @@ namespace AnswerNow.Business.Services
         }
 
         //Refresh Token
-        public async Task<AuthResponseDto?> RefreshTokenAsync(RefreshTokenRequestDto dto)
+        //public async Task<AuthResponseDto?> RefreshTokenAsync(RefreshTokenRequestDto dto)
+        public async Task<AuthResponse?> RefreshTokenAsync(string refreshToken)
         {
             //return the domain model
-            var storedToken = await _refreshTokenRepository.GetByTokenAsync(dto.RefreshToken);
+            var storedToken = await _refreshTokenRepository.GetByTokenAsync(refreshToken);
 
             if (storedToken == null || !storedToken.IsActive || storedToken.User == null)
             {
@@ -176,7 +174,7 @@ namespace AnswerNow.Business.Services
             }
 
             //rotate the refresh token
-            await _refreshTokenRepository.RevokeAsync(dto.RefreshToken, "Replaced by new token");
+            await _refreshTokenRepository.RevokeAsync(refreshToken, "Replaced by new token");
 
             //user is already a domain model from the mapping
             return await GenerateAuthResponse(storedToken.User);

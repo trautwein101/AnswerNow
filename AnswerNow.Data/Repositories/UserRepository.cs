@@ -1,5 +1,6 @@
 ﻿using AnswerNow.Data.IRepositories;
 using AnswerNow.Data.Mappings;
+using AnswerNow.Domain.Enums;
 using AnswerNow.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -55,5 +56,61 @@ namespace AnswerNow.Data.Repositories
                 await _dbContext.SaveChangesAsync();
             }
         }
+
+        //Admin methods
+        public async Task<IEnumerable<User>> GetAllAsync()
+        {
+            var entites = await _dbContext.Users
+                .Include(u => u.Questions)
+                .Include(u => u.Answers)
+                .OrderByDescending(u => u.DateCreated)
+                .ToListAsync();
+
+            return entites.Select(e => e.ToDomain());
+        }
+
+        public async Task<User?> UpdateRoleAsync(int userId, UserRole newRole)
+        {
+            var entity = await _dbContext.Users.FindAsync(userId);
+
+            if (entity == null)
+                return null;
+
+            entity.Role = newRole;
+            await _dbContext.SaveChangesAsync();
+
+            return entity.ToDomain();
+        }
+
+        public async Task<User?> UpdateBanStatusAsync(int userId, bool isBanned)
+        {
+            var entity = await _dbContext.Users.FindAsync(userId);
+
+            if(entity == null)
+                return null;
+
+            entity.IsBanned = isBanned;
+
+            await _dbContext.SaveChangesAsync();
+
+            return entity.ToDomain();
+        }
+
+        public async Task<int> GetTotalCountAsync()
+        {
+            return await _dbContext.Users.CountAsync();
+        }
+
+        public async Task<int> GetNewUsersCountAsync(int days)
+        {
+            var cutOffDate = DateTime.Now.AddDays(-days);
+
+            return await _dbContext.Users.CountAsync(u => u.DateCreated >=  cutOffDate);
+
+        }
+
+
+
+
     }
 }

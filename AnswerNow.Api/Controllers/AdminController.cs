@@ -12,6 +12,7 @@ namespace AnswerNow.Api.Controllers
     public class AdminController : ControllerBase
     {
         private readonly IAuthService _authService;
+
         public AdminController(IAuthService authService) 
         {
             _authService = authService;

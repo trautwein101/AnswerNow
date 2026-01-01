@@ -4,6 +4,7 @@ namespace AnswerNow.Business.DTOs
 {
     public class AnswerDto
     {
+
         public int Id { get; set; }
 
         [Required]
@@ -21,8 +22,6 @@ namespace AnswerNow.Business.DTOs
         public DateTime DateCreated { get; set; }
 
         public DateTime DateUpdated { get; set; }
-
-
 
     }
 }

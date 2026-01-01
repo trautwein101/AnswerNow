@@ -56,13 +56,11 @@ namespace AnswerNow.Api.Controllers
 
             dto.QuestionId = questionId;
 
-            var entity = dto.ToEntity();
-
-            var created = await _answerService.CreateAsync(entity);
+            var created = await _answerService.CreateAsync(dto.ToEntity());
 
             var createdDto = created.ToDto();
 
-            return CreatedAtAction(nameof(GetById), new { id = createdDto.Id }, createdDto);
+            return CreatedAtAction(nameof(GetById), new { id = createdDto.Id }, createdDto); // 201 created
 
         }
 

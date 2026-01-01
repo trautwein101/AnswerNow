@@ -53,13 +53,11 @@ namespace AnswerNow.Api.Controllers
                 return ValidationProblem(ModelState);
             }
 
-            var entity = dto.ToEntity();
-
-            var created = await _questionService.CreateAsync(entity);
+            var created = await _questionService.CreateAsync(dto.ToEntity());
 
             var createdDto = created.ToDto();
 
-            return CreatedAtAction(nameof(GetById), new { id = createdDto.Id }, createdDto);
+            return CreatedAtAction(nameof(GetById), new { id = createdDto.Id }, createdDto); // 201 created
 
         }
 

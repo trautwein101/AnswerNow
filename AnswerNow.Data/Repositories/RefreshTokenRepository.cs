@@ -28,7 +28,7 @@ namespace AnswerNow.Data.Repositories
         public async Task<RefreshToken?> CreateAsync(RefreshToken refreshToken)
         {
             var entity = refreshToken.ToEntity();
-            entity.CreatedAt = DateTime.UtcNow;
+            entity.DateCreated = DateTime.UtcNow;
 
             _dbContext.RefreshTokens.Add(entity);
             await _dbContext.SaveChangesAsync();

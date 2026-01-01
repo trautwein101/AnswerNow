@@ -1,4 +1,5 @@
-﻿using AnswerNow.Domain.Models;
+﻿using AnswerNow.Domain.Enums;
+using AnswerNow.Domain.Models;
 
 namespace AnswerNow.Data.IRepositories
 {
@@ -9,5 +10,12 @@ namespace AnswerNow.Data.IRepositories
         Task<User> CreateAsync(User user);
         Task<bool> EmailExistsAsync(string email);
         Task UpdateLastLoginAsync(int userId);
+
+        //Admin Methods
+        Task<IEnumerable<User>> GetAllAsync();
+        Task<User?> UpdateRoleAsync(int userId, UserRole newRole);
+        Task<User?> UpdateBanStatusAsync(int userId, bool isBanned);
+        Task<int> GetTotalCountAsync();
+        Task<int> GetNewUsersCountAsync(int days);
     }
 }

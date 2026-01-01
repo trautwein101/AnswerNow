@@ -1,5 +1,6 @@
 ﻿using AnswerNow.Business.DTOs;
 using AnswerNow.Business.IServices;
+using AnswerNow.Business.Mappings;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -31,14 +32,14 @@ namespace AnswerNow.Api.Controllers
                 return ValidationProblem(ModelState);
             }
 
-            var result = await _authService.RegisterAsync(dto);
+            var register = await _authService.RegisterAsync(dto.ToEntity());
 
-            if (result == null)
+            if (register == null)
             {
                 return Conflict(new { message = "Email already registered" }); // 409 conflict
             }
 
-            return Created("", result); // 201 created
+            return Created("", register.ToDto()); // 201 created
 
         }
 
@@ -47,21 +48,21 @@ namespace AnswerNow.Api.Controllers
         //POST /api/auth/login
         //Authenticates user and return JWT token
         [HttpPost("login")]
-        public async Task<ActionResult<AuthResponseDto>> Login([FromBody] LoginDto dto)
+         public async Task<ActionResult<AuthResponseDto>> Login([FromBody] LoginDto dto)
         {
             if (!ModelState.IsValid)
             {
                 return ValidationProblem(ModelState);
             }
 
-            var result = await _authService.LoginAsync(dto);
+            var result = await _authService.LoginAsync(dto.ToEntity());
 
             if (result == null)
             {
                 return Unauthorized(new { message = "Invalid email or password" }); // 401 Unauthorized
             }
 
-            return Ok(result); // 200 OK status
+            return Ok(result?.ToDto()); // 200 OK status
         }
 
 
@@ -75,7 +76,7 @@ namespace AnswerNow.Api.Controllers
                 return ValidationProblem(ModelState);
             }
 
-            var result = await _authService.RefreshTokenAsync(dto);
+            var result = await _authService.RefreshTokenAsync(dto.RefreshToken);
 
             //token invalid, expired or already in use
             if(result == null)
