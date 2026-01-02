@@ -14,7 +14,6 @@ namespace AnswerNow.Data.Entities
         public UserRole Role { get; set; } = UserRole.User;
         public bool IsBanned { get; set; } = false;
 
-        // NAVIGATION PROPERTY
         public ICollection<QuestionEntity> Questions { get; set; } = new List<QuestionEntity>();
         public ICollection<AnswerEntity> Answers { get; set; } = new List<AnswerEntity>();
         public ICollection<RefreshTokenEntity> RefreshTokens { get; set; } = new List<RefreshTokenEntity>();

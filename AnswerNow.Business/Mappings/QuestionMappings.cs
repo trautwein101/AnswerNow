@@ -8,14 +8,14 @@ namespace AnswerNow.Business.Mappings
 
         public static QuestionDto ToDto(this Question entity)
         {
-            //extension methods
             return new QuestionDto
             {
                 Id = entity.Id,
                 Title = entity.Title,
                 Body = entity.Body,
                 DateCreated = entity.DateCreated,
-                CreatedBy = entity.CreatedBy
+                CreatedBy = entity.CreatedBy,
+                UserId = entity.UserId
             };
         }
 
@@ -27,7 +27,8 @@ namespace AnswerNow.Business.Mappings
                 Title = dto.Title,
                 Body = dto.Body,
                 DateCreated = dto.DateCreated,
-                CreatedBy = dto.CreatedBy
+                CreatedBy = dto.CreatedBy,
+                UserId = dto.UserId
             };
         }
 

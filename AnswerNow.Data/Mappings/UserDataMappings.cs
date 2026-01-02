@@ -17,7 +17,9 @@ namespace AnswerNow.Data.Mappings
                 IsActive = entity.IsActive,
                 Role = entity.Role,
                 IsBanned = entity.IsBanned,
-                DateCreated = entity.DateCreated
+                DateCreated = entity.DateCreated,
+                QuestionCount = entity.Questions?.Count ?? 0,
+                AnswerCount = entity.Answers?.Count ?? 0
             };
         }
 

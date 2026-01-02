@@ -2,6 +2,7 @@
 using AnswerNow.Business.IServices;
 using AnswerNow.Business.Mappings;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace AnswerNow.Api.Controllers
 {
@@ -51,6 +52,15 @@ namespace AnswerNow.Api.Controllers
             if (!ModelState.IsValid)
             {
                 return ValidationProblem(ModelState);
+            }
+            
+            if (User.Identity?.IsAuthenticated == true)
+            {
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (int.TryParse(userIdClaim, out int userId))
+                {
+                    dto.UserId = userId;
+                }
             }
 
             var created = await _questionService.CreateAsync(dto.ToEntity());

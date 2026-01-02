@@ -1,4 +1,5 @@
 ﻿using AnswerNow.Data.Entities;
+using AnswerNow.Data.IRepositories;
 using AnswerNow.Data.Mappings;
 using AnswerNow.Domain.Models;
 using Microsoft.EntityFrameworkCore;
@@ -41,6 +42,19 @@ namespace AnswerNow.Data.Repositories
 
         }
 
+
+        //Admin methods
+        public async Task<int> GetTotalCountAsync()
+        {
+            return await _dbContext.Questions.CountAsync();
+        }
+
+        public async Task<int> GetNewQuestionsCountAsync(int days)
+        {
+            var cutOffDate = DateTime.UtcNow.AddDays(-days);
+
+            return await _dbContext.Questions.CountAsync(q => q.DateCreated >= cutOffDate);
+        }
 
     }
 }

@@ -14,6 +14,7 @@ namespace AnswerNow.Data.Mappings
                 Title = entity.Title,
                 Body = entity.Body,
                 DateCreated = entity.DateCreated,
+                UserId = entity.UserId,
                 CreatedBy = entity.CreatedBy
             };
         }
@@ -26,6 +27,7 @@ namespace AnswerNow.Data.Mappings
                 Title = domain.Title,
                 Body = domain.Body,
                 DateCreated = domain.DateCreated,
+                UserId = domain.UserId,
                 CreatedBy = domain.CreatedBy
             };
         }

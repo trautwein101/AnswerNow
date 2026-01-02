@@ -1,5 +1,5 @@
 ﻿using AnswerNow.Business.IServices;
-using AnswerNow.Data.Repositories;
+using AnswerNow.Data.IRepositories;
 using AnswerNow.Domain.Models;
 
 namespace AnswerNow.Business.Services
@@ -15,7 +15,6 @@ namespace AnswerNow.Business.Services
 
         public async Task<IEnumerable<Answer>> GetByQuestionIdAsync(int questionId)
         {
-            // Repository returns Domain Models, already sorted
             return await _answerRepository.GetByQuestionIdAsync(questionId);
         }
 
@@ -33,7 +32,6 @@ namespace AnswerNow.Business.Services
 
         public async Task<Answer?> VoteAsync(int AnswerId, bool isUpVote)
         {
-            //Get domain model
             var answer = await _answerRepository.GetByIdAsync(AnswerId);
 
             if (answer == null)
@@ -41,7 +39,6 @@ namespace AnswerNow.Business.Services
                 return null;
             }
 
-            // BUSINESS LOGIC is in Domain Model
             if (isUpVote)
             {
                 answer.Upvote();

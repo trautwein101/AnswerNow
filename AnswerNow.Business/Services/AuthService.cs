@@ -162,7 +162,6 @@ namespace AnswerNow.Business.Services
         }
 
         //Refresh Token
-        //public async Task<AuthResponseDto?> RefreshTokenAsync(RefreshTokenRequestDto dto)
         public async Task<AuthResponse?> RefreshTokenAsync(string refreshToken)
         {
             //return the domain model

@@ -10,11 +10,11 @@ namespace AnswerNow.Domain.Models
         public string PasswordHash { get; set; } = "";
         public bool IsActive { get; set; } = true;
         public bool IsBanned { get; set; } = false;
-
-        //Role will determine the permission ~ user, moderator, admin
         public UserRole Role { get; set; } = UserRole.User;
         public DateTime DateCreated { get; set; } = DateTime.UtcNow;
         public DateTime? LastLogin { get; set; } = DateTime.UtcNow;
+        public int QuestionCount { get; set; } = 0;
+        public int AnswerCount { get; set; } = 0;
 
     }
 }

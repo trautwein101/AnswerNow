@@ -13,7 +13,7 @@ namespace AnswerNow.Utilities.Exceptions
 
         public ExceptionHandlingMiddleware(RequestDelegate next, ILogger<ExceptionHandlingMiddleware> logger)
         {
-            _next = next; //next piece middleware / MVC pipeline.
+            _next = next;
             _logger = logger;
         }
 
@@ -21,7 +21,7 @@ namespace AnswerNow.Utilities.Exceptions
         {
             try
             {
-                await _next(context); //let rest of pipeline run (controllers, etc.)
+                await _next(context);
             }
             catch (Exception ex)
             {
@@ -32,7 +32,7 @@ namespace AnswerNow.Utilities.Exceptions
 
         public async Task HandleExceptionAsync(HttpContext context, Exception ex)
         {
-            _logger.LogError(ex, "Unhandled exception while processing request {Path}", context.Request); //log full details on server side
+            _logger.LogError(ex, "Unhandled exception while processing request {Path}", context.Request);
 
             context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             context.Response.ContentType = "application/json";

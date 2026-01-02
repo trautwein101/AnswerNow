@@ -14,12 +14,16 @@ namespace AnswerNow.Business.DTOs
         [Required]
         public string Body { get; set; } = "";
 
+        // Optional - null for anonymous questions, set when user is logged in
+        public int? UserId { get; set; }
+
         [Required]
         public string CreatedBy { get; set; } = "";
 
         public DateTime DateCreated { get; set; }
 
         public DateTime DateUpdated { get; set; }
+
 
     }
 }

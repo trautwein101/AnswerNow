@@ -17,7 +17,9 @@ namespace AnswerNow.Business.Mappings
                 IsBanned = user.IsBanned,
                 IsActive = user.IsActive,
                 Role = user.Role.ToString(),
-                DateCreated = user.DateCreated
+                DateCreated = user.DateCreated,
+                QuestionCount = user.QuestionCount,
+                AnswerCount = user.AnswerCount
             };
         }
 
@@ -32,7 +34,9 @@ namespace AnswerNow.Business.Mappings
                 IsBanned = dto.IsBanned,
                 IsActive = dto.IsActive,
                 Role = Enum.Parse<UserRole>(dto.Role),
-                DateCreated = dto.DateCreated
+                DateCreated = dto.DateCreated,
+                QuestionCount = dto.QuestionCount,
+                AnswerCount = dto.AnswerCount
             };
         }
             

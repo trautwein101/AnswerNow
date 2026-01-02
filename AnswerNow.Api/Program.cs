@@ -67,13 +67,15 @@ builder.Services.AddAuthentication(options =>
 
 
 //Register Services
-builder.Services.AddScoped<IQuestionService, QuestionService>();
+builder.Services.AddScoped<IAdminService,  AdminService>();
 builder.Services.AddScoped<IAnswerService, AnswerService>();
-builder.Services.AddScoped<IQuestionRepository, QuestionRepository>();
-builder.Services.AddScoped<IAnswerRepository, AnswerRepository>();
-builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IQuestionService, QuestionService>();
+
+builder.Services.AddScoped<IAnswerRepository, AnswerRepository>();
+builder.Services.AddScoped<IQuestionRepository, QuestionRepository>();
 builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 var app = builder.Build();
 

@@ -3,7 +3,6 @@
 namespace AnswerNow.Business.DTOs
 {
 
-    // Received from Angular with new sign up.
     public class RegisterDto
     {
 
@@ -17,7 +16,7 @@ namespace AnswerNow.Business.DTOs
         public string DisplayName { get; set; } = "";
 
         [Required]
-        [StringLength(100, MinimumLength = 6)] // min 6 characters
+        [StringLength(100, MinimumLength = 6)]
         public string Password { get; set; } = "";
 
     }

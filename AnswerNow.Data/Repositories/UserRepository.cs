@@ -103,7 +103,7 @@ namespace AnswerNow.Data.Repositories
 
         public async Task<int> GetNewUsersCountAsync(int days)
         {
-            var cutOffDate = DateTime.Now.AddDays(-days);
+            var cutOffDate = DateTime.UtcNow.AddDays(-days);
 
             return await _dbContext.Users.CountAsync(u => u.DateCreated >=  cutOffDate);
 

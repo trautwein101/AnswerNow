@@ -3,7 +3,6 @@
 namespace AnswerNow.Business.DTOs
 {
 
-    // Response to Angular after successful login/register for storage ~includes active token (short lived) refresh-token(long lived)
     public class AuthResponseDto
     {
 

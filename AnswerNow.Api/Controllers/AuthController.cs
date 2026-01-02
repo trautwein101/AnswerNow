@@ -21,7 +21,6 @@ namespace AnswerNow.Api.Controllers
         }
 
 
-        //Register
         //POST /api/auth/register
         //Creates a new account and returns JWT token
         [HttpPost("register")]
@@ -44,7 +43,6 @@ namespace AnswerNow.Api.Controllers
         }
 
 
-        //Login
         //POST /api/auth/login
         //Authenticates user and return JWT token
         [HttpPost("login")]

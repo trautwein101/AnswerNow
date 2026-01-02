@@ -1,4 +1,5 @@
 ﻿using AnswerNow.Data.Entities;
+using AnswerNow.Data.IRepositories;
 using AnswerNow.Data.Mappings;
 using AnswerNow.Domain.Models;
 using Microsoft.EntityFrameworkCore;
@@ -55,7 +56,6 @@ namespace AnswerNow.Data.Repositories
                 throw new InvalidOperationException($"Answer {answer.Id} not found");
             }
 
-            //Update entity properties from domain model
             entity.Body = answer.Body;
             entity.UpVotes = answer.UpVotes;
             entity.DownVotes = answer.DownVotes;
@@ -63,6 +63,20 @@ namespace AnswerNow.Data.Repositories
 
             await _dbContext.SaveChangesAsync();
             return entity.ToDomain();
+        }
+
+
+        //Admin methods
+        public async Task<int> GetTotalCountAsync()
+        {
+            return await _dbContext.Answers.CountAsync();
+        }
+
+        public async Task<int> GetNewAnswersCountAsync(int days)
+        {
+            var cutOffDate = DateTime.UtcNow.AddDays(-days);
+            
+            return await _dbContext.Answers.CountAsync(u => u.DateCreated >= cutOffDate);
         }
 
 

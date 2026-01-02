@@ -20,10 +20,9 @@ namespace AnswerNow.Data
             base.OnModelCreating(modelBuilder);
 
             //Question
-            // Question configuration
             modelBuilder.Entity<QuestionEntity>(entity =>
             {
-                //entity.ToTable("Questions");  // Explicit table name
+                //entity.ToTable("Questions");
                 entity.HasKey(q => q.Id);
 
                 entity.Property(q => q.Title)
@@ -32,6 +31,12 @@ namespace AnswerNow.Data
 
                 entity.Property(q => q.Body)
                     .IsRequired();
+
+                // Relationship: User can have many Questions
+                entity.HasOne(q => q.User)
+                    .WithMany(u => u.Questions)
+                    .HasForeignKey(q => q.UserId)
+                    .OnDelete(DeleteBehavior.SetNull);
             });
 
             //Answer
@@ -47,9 +52,15 @@ namespace AnswerNow.Data
 
                 //one question can have many answers, each answer has one question
                 entity.HasOne(a => a.Question)
-                    .WithMany() // later we can add ICollection<Answer> Answers on Question if we want
+                    .WithMany(q => q.Answers)
                     .HasForeignKey(a => a.QuestionId)
                     .OnDelete(DeleteBehavior.Cascade);
+
+                // Relationship: User can have many Answers
+                entity.HasOne(a => a.User)
+                    .WithMany(u => u.Answers)
+                    .HasForeignKey(a => a.UserId)
+                    .OnDelete(DeleteBehavior.SetNull);
             });
 
             //User
@@ -77,7 +88,7 @@ namespace AnswerNow.Data
             //RefreshToken
             modelBuilder.Entity<RefreshTokenEntity>(entity =>
             {
-                //entity.ToTable("RefreshTokens"); //todo: maybe a better name
+                //entity.ToTable("RefreshTokens");
                 entity.HasKey(r => r.Id);
 
                 entity.HasIndex(r => r.Token);

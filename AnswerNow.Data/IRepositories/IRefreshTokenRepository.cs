@@ -8,5 +8,6 @@ namespace AnswerNow.Data.IRepositories
         Task<RefreshToken?> CreateAsync(RefreshToken refreshToken);
         Task RevokeAsync(string token, string reason);
         Task RevokeAllForUserAsync(int userId, string reason);
+
     }
 }

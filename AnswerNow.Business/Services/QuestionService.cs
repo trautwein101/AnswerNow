@@ -1,6 +1,6 @@
 ﻿
 using AnswerNow.Business.IServices;
-using AnswerNow.Data.Repositories;
+using AnswerNow.Data.IRepositories;
 using AnswerNow.Domain.Models;
 
 namespace AnswerNow.Business.Services
