@@ -10,11 +10,12 @@ namespace AnswerNow.Data.Entities
         public string CreatedBy { get; set; } = "";
         public int UpVotes { get; set; }
         public int DownVotes { get; set; }
-        public DateTime DateCreated { get; set; }
-        public DateTime DateUpdated { get; set; }
+        public bool IsFlagged { get; set; } = false;
+        public DateTime DateCreated { get; set; } = DateTime.UtcNow;
+        public DateTime DateUpdated { get; set; } = DateTime.UtcNow;
 
         // NAVIGATION PROPERTIES
-        public QuestionEntity? Question { get; set; }
+        public QuestionEntity Question { get; set; } = null!;
         public UserEntity? User { get; set; }
 
     }

@@ -17,6 +17,7 @@ namespace AnswerNow.Business.Mappings
                 CreatedBy = entity.CreatedBy,
                 UpVotes = entity.UpVotes,
                 DownVotes = entity.DownVotes,
+                IsFlagged = entity.IsFlagged,
                 DateCreated = entity.DateCreated,
                 DateUpdated = entity.DateUpdated
             };  
@@ -33,6 +34,7 @@ namespace AnswerNow.Business.Mappings
                 CreatedBy = dto.CreatedBy,
                 UpVotes = dto.UpVotes,
                 DownVotes = dto.DownVotes,
+                IsFlagged = dto.IsFlagged,
                 DateCreated = dto.DateCreated,
                 DateUpdated = dto.DateUpdated
             };

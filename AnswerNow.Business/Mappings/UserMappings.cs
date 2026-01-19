@@ -14,12 +14,18 @@ namespace AnswerNow.Business.Mappings
                 Id = user.Id,
                 Email = user.Email,
                 DisplayName = user.DisplayName,
-                IsBanned = user.IsBanned,
-                IsActive = user.IsActive,
                 Role = user.Role.ToString(),
+                IsProfessional = user.IsProfessional,
+                IsActive = user.IsActive,
+                IsBanned = user.IsBanned,
+                IsSuspended = user.IsSuspended,
+                LastLogin = user.LastLogin,
                 DateCreated = user.DateCreated,
+                DateUpdated = user.DateUpdated,
                 QuestionCount = user.QuestionCount,
-                AnswerCount = user.AnswerCount
+                AnswerCount = user.AnswerCount,
+                QuestionFlagCount = user.QuestionFlagCount,
+                AnswerFlagCount = user.AnswerFlagCount
             };
         }
 
@@ -31,12 +37,18 @@ namespace AnswerNow.Business.Mappings
                 Id = dto.Id,
                 Email = dto.Email,
                 DisplayName = dto.DisplayName,
-                IsBanned = dto.IsBanned,
-                IsActive = dto.IsActive,
                 Role = Enum.Parse<UserRole>(dto.Role),
+                IsProfessional = dto.IsProfessional,
+                IsActive = dto.IsActive,
+                IsBanned = dto.IsBanned,
+                IsSuspended = dto.IsSuspended,
+                LastLogin = dto.LastLogin,
                 DateCreated = dto.DateCreated,
+                DateUpdated = dto.DateUpdated,
                 QuestionCount = dto.QuestionCount,
-                AnswerCount = dto.AnswerCount
+                AnswerCount = dto.AnswerCount,
+                QuestionFlagCount = dto.QuestionFlagCount,
+                AnswerFlagCount = dto.AnswerFlagCount
             };
         }
             

@@ -3,14 +3,9 @@ using AnswerNow.Domain.Models;
 
 namespace AnswerNow.Data.Mappings
 {
-
-    // DATA LAYER MAPPINGS  
-    // Converts between Domain Models and EF Entities.
-
     public static class AnswerDataMappings
     {
 
-        // ENTITY → DOMAIN MODEL
         public static Answer ToDomain(this AnswerEntity entity)
         {
             return new Answer
@@ -22,12 +17,12 @@ namespace AnswerNow.Data.Mappings
                 CreatedBy = entity.CreatedBy,
                 UpVotes = entity.UpVotes,
                 DownVotes = entity.DownVotes,
+                IsFlagged = entity.IsFlagged,
                 DateCreated = entity.DateCreated,
                 DateUpdated = entity.DateUpdated
             };
         }
 
-        // DOMAIN MODEL → ENTITY
         public static AnswerEntity ToEntity(this Answer domain)
         {
             return new AnswerEntity
@@ -39,6 +34,7 @@ namespace AnswerNow.Data.Mappings
                 CreatedBy = domain.CreatedBy,
                 UpVotes = domain.UpVotes,
                 DownVotes = domain.DownVotes,
+                IsFlagged = domain.IsFlagged,
                 DateCreated = domain.DateCreated,
                 DateUpdated = domain.DateUpdated
             };
