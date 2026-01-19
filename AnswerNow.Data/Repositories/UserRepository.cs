@@ -96,6 +96,21 @@ namespace AnswerNow.Data.Repositories
             return entity.ToDomain();
         }
 
+
+        public async Task<User?> UpdateSuspendStatusAsync(int userId, bool isSuspend)
+        {
+            var entity = await _dbContext.Users.FindAsync(userId);
+
+            if(entity == null)
+                return null;
+            entity.IsSuspended = isSuspend;
+
+            await _dbContext.SaveChangesAsync();
+
+            return entity.ToDomain();
+        }
+
+
         public async Task<int> GetTotalCountAsync()
         {
             return await _dbContext.Users.CountAsync();

@@ -5,7 +5,7 @@ namespace AnswerNow.Business.IServices
     public interface IAdminService
     {
        
-        Task<AdminStats> GetStatsAsync();
+        Task<AdminStats> GetAdminStatsAsync();
         Task<IEnumerable<User>> GetAllUsersAsync();
         Task<User?> ChangeUserRoleAsync(int userId, string newRole);
         Task<User?> SetUserBanStatusAsync(int userId, bool isBanned);

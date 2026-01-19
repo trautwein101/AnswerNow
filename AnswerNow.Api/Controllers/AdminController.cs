@@ -23,7 +23,7 @@ namespace AnswerNow.Api.Controllers
         [HttpGet("stats")]
         public async Task<ActionResult<AdminStatsDto>> GetStatsAsync()
         {
-            var stats = await _adminService.GetStatsAsync();
+            var stats = await _adminService.GetAdminStatsAsync();
 
             if (stats == null)
             {

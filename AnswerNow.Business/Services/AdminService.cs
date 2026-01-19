@@ -19,12 +19,12 @@ namespace AnswerNow.Business.Services
             _userRepository = userRepository;
         }
 
-        public async Task<AdminStats> GetStatsAsync()
+        public async Task<AdminStats> GetAdminStatsAsync()
         {
             
             // todo: run in parallel for optimization
             var totalUsers = await _userRepository.GetTotalCountAsync();
-            var totolQuestions = await _questionRepository.GetTotalCountAsync();
+            var totalQuestions = await _questionRepository.GetTotalCountAsync();
             var totalAnswers = await _answerRepository.GetTotalCountAsync();
             var newUsersThisWeek = await _userRepository.GetNewUsersCountAsync(7);
             var newQuestionsThisWeek = await _questionRepository.GetNewQuestionsCountAsync(7);
@@ -33,7 +33,7 @@ namespace AnswerNow.Business.Services
             return new AdminStats
             {
                 TotalUsers = totalUsers,
-                TotalQuestions = totolQuestions,
+                TotalQuestions = totalQuestions,
                 TotalAnswers = totalAnswers,
                 NewUsersThisWeek = newUsersThisWeek,
                 NewQuestionsThisWeek = newQuestionsThisWeek,

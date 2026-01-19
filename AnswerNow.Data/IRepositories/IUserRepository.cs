@@ -17,5 +17,8 @@ namespace AnswerNow.Data.IRepositories
         Task<User?> UpdateBanStatusAsync(int userId, bool isBanned);
         Task<int> GetTotalCountAsync();
         Task<int> GetNewUsersCountAsync(int days);
+
+        //Moderator Methods
+        Task<User?> UpdateSuspendStatusAsync(int userId, bool isSuspend);
     }
 }
