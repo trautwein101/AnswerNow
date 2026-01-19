@@ -13,9 +13,11 @@ namespace AnswerNow.Business.Mappings
                 Id = entity.Id,
                 Title = entity.Title,
                 Body = entity.Body,
-                DateCreated = entity.DateCreated,
+                UserId = entity.UserId,
                 CreatedBy = entity.CreatedBy,
-                UserId = entity.UserId
+                IsFlagged = entity.IsFlagged,
+                DateCreated = entity.DateCreated,
+                DateUpdated = entity.DateUpdated
             };
         }
 
@@ -26,9 +28,11 @@ namespace AnswerNow.Business.Mappings
                 Id = dto.Id,
                 Title = dto.Title,
                 Body = dto.Body,
-                DateCreated = dto.DateCreated,
+                UserId = dto.UserId,
                 CreatedBy = dto.CreatedBy,
-                UserId = dto.UserId
+                IsFlagged = dto.IsFlagged,
+                DateCreated = dto.DateCreated,
+                DateUpdated = dto.DateUpdated
             };
         }
 

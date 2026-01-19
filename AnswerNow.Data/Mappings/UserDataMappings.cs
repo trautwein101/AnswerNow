@@ -13,11 +13,14 @@ namespace AnswerNow.Data.Mappings
                 Email = entity.Email,
                 DisplayName = entity.DisplayName,
                 PasswordHash = entity.PasswordHash,
-                LastLogin = entity.LastLogin,
-                IsActive = entity.IsActive,
                 Role = entity.Role,
+                IsProfessional = entity.IsProfessional,
+                IsActive = entity.IsActive,
                 IsBanned = entity.IsBanned,
+                IsSuspended = entity.IsSuspended,
+                LastLogin = entity.LastLogin,
                 DateCreated = entity.DateCreated,
+                DateUpdated = entity.DateUpdated,
                 QuestionCount = entity.Questions?.Count ?? 0,
                 AnswerCount = entity.Answers?.Count ?? 0
             };
@@ -31,11 +34,14 @@ namespace AnswerNow.Data.Mappings
                 Email = domain.Email,
                 DisplayName = domain.DisplayName,
                 PasswordHash = domain.PasswordHash,
-                LastLogin = domain.LastLogin,
-                IsActive = domain.IsActive,
                 Role = domain.Role,
+                IsProfessional= domain.IsProfessional,
+                IsActive = domain.IsActive,
                 IsBanned = domain.IsBanned,
-                DateCreated = domain.DateCreated
+                IsSuspended = domain.IsSuspended,
+                LastLogin = domain.LastLogin,
+                DateCreated = domain.DateCreated,
+                DateUpdated = domain.DateUpdated,           
             };
         }
 

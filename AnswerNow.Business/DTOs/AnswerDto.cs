@@ -22,6 +22,8 @@ namespace AnswerNow.Business.DTOs
         public int UpVotes { get; set; }
         public int DownVotes { get; set; }
 
+        public bool IsFlagged { get; set; } = false;
+
         public DateTime DateCreated { get; set; }
 
         public DateTime DateUpdated { get; set; }
