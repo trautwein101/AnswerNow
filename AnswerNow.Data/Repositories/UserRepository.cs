@@ -103,6 +103,7 @@ namespace AnswerNow.Data.Repositories
 
             if(entity == null)
                 return null;
+
             entity.IsSuspended = isSuspend;
 
             await _dbContext.SaveChangesAsync();

@@ -27,7 +27,7 @@ namespace AnswerNow.Api.Controllers
 
             if (stats == null)
             {
-                return NotFound();
+                return NotFound(); //404 not found
             }
 
             return Ok(stats.ToDto()); // 200 OK

@@ -14,5 +14,9 @@ namespace AnswerNow.Data.IRepositories
         Task<int> GetTotalCountAsync();
         Task<int> GetNewAnswersCountAsync(int days);
 
+        //Moderator Methods
+        Task<int> GetTotalIsFlaggedCountAsync();
+        Task<int> GetNewIsFlaggedCountAsync(int days);
+
     }
 }

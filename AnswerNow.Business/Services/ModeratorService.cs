@@ -21,11 +21,12 @@ namespace AnswerNow.Business.Services
 
         public async Task<ModeratorStats> GetModeratorStatsAsync()
         {
-
+            
+            // todo: run in parallel for optimization
             var totalIsFlaggedQuestions = await _questionRepository.GetTotalIsFlaggedCountAsync();
             var totalIsFlaggedAnswers = await _answerRepository.GetTotalIsFlaggedCountAsync();
-            var newIsFlaggedQuestionsThisWeek = await _questionRepository.GetTotalIsFlaggedCountAsync();
-            var newIsFlaggedAnswersThisWeek = await _questionRepository.GetTotalIsFlaggedCountAsync();
+            var newIsFlaggedQuestionsThisWeek = await _questionRepository.GetNewIsFlaggedCountAsync(7);
+            var newIsFlaggedAnswersThisWeek = await _answerRepository.GetNewIsFlaggedCountAsync(7);
 
             return new ModeratorStats
             {

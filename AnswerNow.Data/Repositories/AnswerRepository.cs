@@ -76,7 +76,21 @@ namespace AnswerNow.Data.Repositories
         {
             var cutOffDate = DateTime.UtcNow.AddDays(-days);
             
-            return await _dbContext.Answers.CountAsync(u => u.DateCreated >= cutOffDate);
+            return await _dbContext.Answers.CountAsync(a => a.DateCreated >= cutOffDate);
+        }
+
+
+        //Moderator methods
+        public async Task<int> GetTotalIsFlaggedCountAsync()
+        {
+            return await _dbContext.Answers.CountAsync(a => a.IsFlagged == true);
+        }
+
+        public async Task<int> GetNewIsFlaggedCountAsync(int days)
+        {
+            var cutOffDate = DateTime.UtcNow.AddDays(-days);
+
+            return await _dbContext.Answers.CountAsync(a => a.DateCreated >= cutOffDate);
         }
 
 

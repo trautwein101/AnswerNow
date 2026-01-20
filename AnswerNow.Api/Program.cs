@@ -68,6 +68,7 @@ builder.Services.AddAuthentication(options =>
 
 //Register Services
 builder.Services.AddScoped<IAdminService,  AdminService>();
+builder.Services.AddScoped<IModeratorService, ModeratorService>();
 builder.Services.AddScoped<IAnswerService, AnswerService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IQuestionService, QuestionService>();
