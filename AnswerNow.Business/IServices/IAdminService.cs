@@ -9,6 +9,7 @@ namespace AnswerNow.Business.IServices
         Task<IEnumerable<User>> GetAllUsersAsync();
         Task<User?> ChangeUserRoleAsync(int userId, string newRole);
         Task<User?> SetUserBanStatusAsync(int userId, bool isBanned);
+        Task<User?> SetUserSuspendStatusAsync(int userId, bool isSuspended);
 
     }
 }

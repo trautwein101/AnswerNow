@@ -1,6 +1,7 @@
 ﻿using AnswerNow.Business.DTOs;
 using AnswerNow.Business.IServices;
 using AnswerNow.Business.Mappings;
+using AnswerNow.Business.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -75,6 +76,21 @@ namespace AnswerNow.Api.Controllers
 
             return Ok(banned.ToDto());
 
+        }
+
+
+        //POST /api/Moderator/5/suspended?isSuspended=true
+        [HttpPost("{id:int}/suspended")]
+        public async Task<ActionResult<UserDto?>> setUserSuspendStatusAsync(int id, [FromQuery] bool isSuspended)
+        {
+            var suspended = await _adminService.SetUserSuspendStatusAsync(id, isSuspended);
+
+            if (suspended == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(suspended.ToDto());
         }
 
 

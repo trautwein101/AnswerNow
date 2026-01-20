@@ -81,5 +81,19 @@ namespace AnswerNow.Business.Services
 
         }
 
+        //Business logic: suspend and unsuspend
+        public async Task<User?> SetUserSuspendStatusAsync(int userId, bool isSuspended)
+        {
+            var updatedUser = await _userRepository.UpdateSuspendStatusAsync(userId, isSuspended);
+
+            if(updatedUser == null) 
+            {
+                return null;
+            }
+
+            return updatedUser;
+
+        }
+
     }
 }
