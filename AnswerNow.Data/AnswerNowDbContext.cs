@@ -146,19 +146,28 @@ namespace AnswerNow.Data
 
                 entity.Property(u => u.IsProfessional)
                     .IsRequired()
-                    .HasDefaultValue(true);
+                    .HasDefaultValue(false);
 
                 entity.Property(u => u.IsActive)
                     .IsRequired()
                     .HasDefaultValue(true);
 
-                entity.Property(u => u.IsBanned)
+                entity.Property(u => u.IsInActive)
                     .IsRequired()
                     .HasDefaultValue(false);
+
+                entity.Property(u => u.IsPending)
+                     .IsRequired()
+                     .HasDefaultValue(false);
 
                 entity.Property(u => u.IsSuspended)
                     .IsRequired()
                     .HasDefaultValue(false);
+
+                entity.Property(u => u.IsBanned)
+                    .IsRequired()
+                    .HasDefaultValue(false);
+
 
                 entity.Property(u => u.LastLogin);
 

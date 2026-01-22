@@ -11,8 +11,10 @@ namespace AnswerNow.Domain.Models
         public UserRole Role { get; set; } = UserRole.User;
         public bool IsProfessional { get; set; } = false;
         public bool IsActive { get; set; } = true;
-        public bool IsBanned { get; set; } = false;
+        public bool IsInActive { get; set; } = false;
+        public bool IsPending { get; set; } = false;
         public bool IsSuspended { get; set; } = false;
+        public bool IsBanned { get; set; } = false;
         public DateTime LastLogin { get; set; } = DateTime.UtcNow;
         public DateTime DateCreated { get; set; } = DateTime.UtcNow;
         public DateTime DateUpdated { get; set; } = DateTime.UtcNow;

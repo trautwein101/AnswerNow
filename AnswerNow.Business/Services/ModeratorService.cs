@@ -46,16 +46,46 @@ namespace AnswerNow.Business.Services
         //Business logic: suspend and unsuspend
         public async Task<User?> SetUserSuspendStatusAsync(int userId, bool isSuspended)
         {
-            var updatedUser = await _userRepository.UpdateSuspendStatusAsync(userId, isSuspended);
 
-            if (updatedUser == null)
-            {
-                return null;
-            }
+            var user = await _userRepository.GetByIdAsync(userId);
+            if (user == null) return null;
 
-            return updatedUser;
+            var newStatus = GetNewStatus(user, UserStatus.Suspended, isSuspended);
+            return await _userRepository.UpdateUserStatusAsync(userId, newStatus);
 
         }
+
+
+
+        private UserStatus GetNewStatus(User user, UserStatus status, bool value)
+        {
+
+            //true(turn on) will always force the status
+            if (value) return status;
+
+            var currentState = GetCurrentStatus(user);
+
+            //false(turn off) only changes if currently in that state
+            return status switch
+            {
+                UserStatus.Active => currentState == UserStatus.Active ? UserStatus.InActive : currentState,
+                UserStatus.InActive => currentState == UserStatus.InActive ? UserStatus.Active : currentState,
+                UserStatus.Pending => currentState == UserStatus.Pending ? UserStatus.Active : currentState,
+                UserStatus.Suspended => currentState == UserStatus.Suspended ? UserStatus.Active : currentState,
+                UserStatus.Banned => currentState == UserStatus.Banned ? UserStatus.Active : currentState,
+                _ => throw new ArgumentOutOfRangeException(nameof(status), status, "Unsupported status")
+            };
+        }
+
+        private static UserStatus GetCurrentStatus(User u)
+        {
+            if (u.IsBanned) return UserStatus.Banned;
+            if (u.IsSuspended) return UserStatus.Suspended;
+            if (u.IsPending) return UserStatus.Pending;
+            if (u.IsInActive) return UserStatus.InActive;
+            return UserStatus.Active;
+        }
+
 
     }
 }

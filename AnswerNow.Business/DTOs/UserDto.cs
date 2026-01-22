@@ -9,9 +9,11 @@ namespace AnswerNow.Business.DTOs
         public string DisplayName { get; set; } = string.Empty;
         public string Role { get; set; } = "User";
         public bool IsProfessional { get; set; }
-        public bool IsBanned { get; set; }
         public bool IsActive { get; set; }
+        public bool IsInActive { get; set; }
+        public bool IsPending { get; set; }
         public bool IsSuspended { get; set; }
+        public bool IsBanned { get; set; }
         public DateTime LastLogin { get; set; }
         public DateTime DateCreated { get; set; }
         public DateTime DateUpdated { get; set; }

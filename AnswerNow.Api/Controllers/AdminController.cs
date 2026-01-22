@@ -1,7 +1,6 @@
 ﻿using AnswerNow.Business.DTOs;
 using AnswerNow.Business.IServices;
 using AnswerNow.Business.Mappings;
-using AnswerNow.Business.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -26,12 +25,7 @@ namespace AnswerNow.Api.Controllers
         {
             var stats = await _adminService.GetAdminStatsAsync();
 
-            if (stats == null)
-            {
-                return NotFound(); //404 not found
-            }
-
-            return Ok(stats.ToDto()); // 200 OK
+            return stats == null ? NotFound() : Ok(stats.ToDto()); // 404 or 200
         }
 
         [HttpGet("users")]
@@ -51,48 +45,63 @@ namespace AnswerNow.Api.Controllers
 
         // POST /api/Admin/5/role?newRole=User
         [HttpPost("{id:int}/role")]
-        public async Task<ActionResult<UserDto?>> ChangeUserRoleAsync(int id, [FromQuery] string newRole)
+        public async Task<ActionResult<UserDto>> ChangeUserRoleAsync(int id, [FromQuery] string newRole)
         {
             var role = await _adminService.ChangeUserRoleAsync(id, newRole);
 
-            if (role == null)
-            {
-                return NotFound();
-            }
+            return role == null ? BadRequest("Invalid role") : Ok(role.ToDto()); // 400 or 200
 
-            return Ok(role.ToDto());
+        }
+
+        //POST /api/Admin/{userId}/activated?isActive=true 
+        [HttpPost("{id:int}/activated")]
+        public async Task<ActionResult<UserDto>> SetUserActivateStatusAsync(int id, [FromQuery] bool isActive)
+        {
+            var user = await _adminService.SetUserActiveStatusAsync(id, isActive);
+
+            return user == null ? NotFound() : Ok(user.ToDto()); // 404 or 200
+
+        }
+
+        //POST /api/Admin/{userId}/inactivated?isInActive=true 
+        [HttpPost("{id:int}/inactivated")]
+        public async Task<ActionResult<UserDto>> SetUserInActivateStatusAsync(int id, [FromQuery] bool isInActive)
+        {
+            var user = await _adminService.SetUserInActiveStatusAsync(id, isInActive);
+
+            return user == null ? NotFound() : Ok(user.ToDto()); // 404 or 200
+
+        }
+
+        //POST /api/admin/5/pending?isPending=true
+        [HttpPost("{id:int}/pending")]
+        public async Task<ActionResult<UserDto>> SetUserPendingStatusAsync(int id, [FromQuery] bool isPending)
+        {
+            var user = await _adminService.SetUserPendingStatusAsync(id, isPending);
+
+            return user == null ? NotFound() : Ok(user.ToDto()); // 404 or 200
+
+        }
+
+        //POST /api/Admin/5/suspended?isSuspended=true
+        [HttpPost("{id:int}/suspended")]
+        public async Task<ActionResult<UserDto>> SetUserSuspendStatusAsync(int id, [FromQuery] bool isSuspended)
+        {
+            var user = await _adminService.SetUserSuspendStatusAsync(id, isSuspended);
+
+            return user == null ? NotFound() : Ok(user.ToDto()); // 404 or 200
+
         }
 
         // POST /api/Admin/5/banned?isBanned=true
         [HttpPost("{id:int}/banned")]
-        public async Task<ActionResult<UserDto?>> SetUserBanStatusAsync(int id, [FromQuery] bool isBanned)
+        public async Task<ActionResult<UserDto>> SetUserBanStatusAsync(int id, [FromQuery] bool isBanned)
         {
-            var banned = await _adminService.SetUserBanStatusAsync(id, isBanned);
+            var user = await _adminService.SetUserBanStatusAsync(id, isBanned);
 
-            if (banned == null)
-            {
-                return NotFound(); // 404
-            }
-
-            return Ok(banned.ToDto());
+            return user == null ? NotFound() : Ok(user.ToDto()); // 404 or 200
 
         }
-
-
-        //POST /api/Moderator/5/suspended?isSuspended=true
-        [HttpPost("{id:int}/suspended")]
-        public async Task<ActionResult<UserDto?>> setUserSuspendStatusAsync(int id, [FromQuery] bool isSuspended)
-        {
-            var suspended = await _adminService.SetUserSuspendStatusAsync(id, isSuspended);
-
-            if (suspended == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(suspended.ToDto());
-        }
-
 
     }
 }

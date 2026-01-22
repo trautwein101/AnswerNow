@@ -1,8 +1,11 @@
-﻿using AnswerNow.Data.IRepositories;
+﻿using AnswerNow.Data.Entities;
+using AnswerNow.Data.IRepositories;
 using AnswerNow.Data.Mappings;
 using AnswerNow.Domain.Enums;
 using AnswerNow.Domain.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics;
+using System.Runtime.CompilerServices;
 
 namespace AnswerNow.Data.Repositories
 {
@@ -60,18 +63,17 @@ namespace AnswerNow.Data.Repositories
         //Admin methods
         public async Task<IEnumerable<User>> GetAllAsync()
         {
-            var entites = await _dbContext.Users
-                .Include(u => u.Questions)
-                .Include(u => u.Answers)
+            var entities = await UserWithCountsQuery()
                 .OrderByDescending(u => u.DateCreated)
                 .ToListAsync();
 
-            return entites.Select(e => e.ToDomain());
+            return entities.Select(e => e.ToDomain());
         }
 
         public async Task<User?> UpdateRoleAsync(int userId, UserRole newRole)
         {
-            var entity = await _dbContext.Users.FindAsync(userId);
+            var entity = await UserWithCountsQuery()
+                .SingleOrDefaultAsync(u => u.Id == userId);
 
             if (entity == null)
                 return null;
@@ -82,36 +84,58 @@ namespace AnswerNow.Data.Repositories
             return entity.ToDomain();
         }
 
-        public async Task<User?> UpdateBanStatusAsync(int userId, bool isBanned)
+        public Task<User?> UpdateUserStatusAsync(int userId, UserStatus newStatus) 
+            => SetUserStatusAsync(userId, newStatus);
+
+
+        private async Task<User?> SetUserStatusAsync(int userId, UserStatus newStatus)
         {
-            var entity = await _dbContext.Users.FindAsync(userId);
+            var entity = await UserWithCountsQuery()
+                .SingleOrDefaultAsync(u => u.Id == userId);
 
-            if(entity == null)
-                return null;
+            if (entity == null) return null;
 
-            entity.IsBanned = isBanned;
+            //clean the current state
+            entity.IsActive = false;
+            entity.IsInActive = false;
+            entity.IsPending = false;
+            entity.IsSuspended = false;
+            entity.IsBanned = false;
+
+            //Update Status
+            switch (newStatus)
+            {
+                case UserStatus.Active:
+                    entity.IsActive = true;
+                    break;
+                case UserStatus.InActive:
+                    entity.IsInActive = true;
+                    break;
+                case UserStatus.Pending:
+                    entity.IsPending = true;
+                    break;
+                case UserStatus.Suspended:
+                    entity.IsSuspended = true;
+                    break;
+                case UserStatus.Banned:
+                    entity.IsBanned = true;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(newStatus), newStatus, "Unsupported status");
+            }
 
             await _dbContext.SaveChangesAsync();
 
             return entity.ToDomain();
+
         }
 
+        private IQueryable<UserEntity> UserWithCountsQuery()
+            => _dbContext.Users
+            .Include(u => u.Questions)
+            .Include(u => u.Answers);
 
-        public async Task<User?> UpdateSuspendStatusAsync(int userId, bool isSuspend)
-        {
-            var entity = await _dbContext.Users.FindAsync(userId);
-
-            if(entity == null)
-                return null;
-
-            entity.IsSuspended = isSuspend;
-
-            await _dbContext.SaveChangesAsync();
-
-            return entity.ToDomain();
-        }
-
-
+        //Totals
         public async Task<int> GetTotalCountAsync()
         {
             return await _dbContext.Users.CountAsync();
@@ -121,12 +145,9 @@ namespace AnswerNow.Data.Repositories
         {
             var cutOffDate = DateTime.UtcNow.AddDays(-days);
 
-            return await _dbContext.Users.CountAsync(u => u.DateCreated >=  cutOffDate);
+            return await _dbContext.Users.CountAsync(u => u.DateCreated >= cutOffDate);
 
         }
-
-
-
 
     }
 }
