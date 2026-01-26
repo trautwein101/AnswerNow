@@ -14,9 +14,11 @@ namespace AnswerNow.Business.DTOs
         public bool IsPending { get; set; }
         public bool IsSuspended { get; set; }
         public bool IsBanned { get; set; }
-        public DateTime LastLogin { get; set; }
+
+        public DateTime? LastLogin { get; set; }
         public DateTime DateCreated { get; set; }
         public DateTime DateUpdated { get; set; }
+
         public int QuestionCount { get; set; }
         public int AnswerCount {  get; set; }
         public int QuestionFlagCount { get; set; }

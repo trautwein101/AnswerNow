@@ -1,6 +1,5 @@
 ﻿using AnswerNow.Data.Entities;
 using AnswerNow.Domain.Models;
-using System.Net.NetworkInformation;
 
 namespace AnswerNow.Data.Mappings
 {
@@ -14,8 +13,12 @@ namespace AnswerNow.Data.Mappings
                 Title = entity.Title,
                 Body = entity.Body,
                 UserId = entity.UserId,
-                CreatedBy = entity.CreatedBy,
                 IsFlagged = entity.IsFlagged,
+
+                IsDeleted = entity.IsDeleted,
+                DeletedByUserId = entity.DeletedByUserId,
+                DateDeleted = entity.DateDeleted,
+
                 DateCreated = entity.DateCreated,
                 DateUpdated = entity.DateUpdated
             };
@@ -29,12 +32,15 @@ namespace AnswerNow.Data.Mappings
                 Title = domain.Title,
                 Body = domain.Body,
                 UserId = domain.UserId,
-                CreatedBy = domain.CreatedBy,
                 IsFlagged = domain.IsFlagged,
+
+                IsDeleted = domain.IsDeleted,
+                DeletedByUserId = domain.DeletedByUserId,
+                DateDeleted = domain.DateDeleted,
+
                 DateCreated = domain.DateCreated,
-                DateUpdated= domain.DateUpdated
+                DateUpdated = domain.DateUpdated
             };
         }
-
     }
 }

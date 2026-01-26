@@ -13,6 +13,8 @@ namespace AnswerNow.Data
 
         public DbSet<QuestionEntity> Questions { get; set; } = null!;
         public DbSet<AnswerEntity> Answers { get; set; } = null!;
+        public DbSet<QuestionFlagEntity> QuestionFlag { get; set; } = null!;
+        public DbSet<AnswerFlagEntity> AnswerFlag { get; set; } = null!;
         public DbSet<UserEntity> Users { get; set; } = null!;
         public DbSet<RefreshTokenEntity> RefreshTokens { get; set; } = null!;
 
@@ -20,15 +22,15 @@ namespace AnswerNow.Data
         {
             base.OnModelCreating(modelBuilder);
 
-
-            //Question
+            // -----------------------------
+            // Question
+            // -----------------------------
             modelBuilder.Entity<QuestionEntity>(entity =>
             {
-                //entity.ToTable("Questions");
+                //entity.ToTable("Question");
                 entity.HasKey(q => q.Id);
 
                 entity.HasIndex(q => q.UserId);
-
                 entity.HasIndex(q => q.DateCreated);
 
                 entity.Property(q => q.Title)
@@ -39,90 +41,263 @@ namespace AnswerNow.Data
                     .IsRequired()
                     .HasMaxLength(10000);
 
-                entity.Property(q => q.CreatedBy)
-                    .IsRequired()
-                    .HasMaxLength(100);
-
                 entity.Property(q => q.IsFlagged)
                     .IsRequired()
                     .HasDefaultValue(false);
 
+                entity.Property(q => q.IsDeleted)
+                    .IsRequired()
+                    .HasDefaultValue(false);
+
                 entity.Property(q => q.DateCreated)
-                   .IsRequired()
-                   .HasDefaultValueSql("now()");
+                    .IsRequired()
+                    .HasDefaultValueSql("now()");
 
                 entity.Property(q => q.DateUpdated)
                     .IsRequired()
                     .HasDefaultValueSql("now()");
 
-                // Relationship: User can have many Questions
+                entity.Property(q => q.DateDeleted)
+                    .IsRequired(false);
+
+                // User -> Questions
                 entity.HasOne(q => q.User)
                     .WithMany(u => u.Questions)
                     .HasForeignKey(q => q.UserId)
                     .IsRequired()
                     .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(q => q.DeletedByUser)
+                    .WithMany()
+                    .HasForeignKey(q => q.DeletedByUserId)
+                    .OnDelete(DeleteBehavior.Restrict);
             });
 
 
-            //Answer
+
+            // -----------------------------
+            // QuestionFlag
+            // -----------------------------
+            modelBuilder.Entity<QuestionFlagEntity>(entity =>
+            {
+                //entity.ToTable("QuestionFlag");
+                entity.HasKey(f => f.Id);
+
+                entity.HasIndex(f => f.QuestionId);
+                entity.HasIndex(f => f.ReportedByUserId);
+                entity.HasIndex(f => f.DateCreated);
+
+                entity.HasIndex(f => f.IsResolved);
+                entity.HasIndex(f => f.IsDeleted);
+
+                entity.Property(f => f.Reason)
+                    .IsRequired();
+
+                entity.Property(f => f.IsResolved)
+                    .IsRequired()
+                    .HasDefaultValue(false);
+
+                entity.Property(f => f.IsDeleted)
+                    .IsRequired()
+                    .HasDefaultValue(false);
+
+                entity.Property(f => f.DateCreated)
+                    .IsRequired()
+                    .HasDefaultValueSql("now()");
+
+                entity.Property(f => f.DateUpdated)
+                    .IsRequired()
+                    .HasDefaultValueSql("now()");
+
+                entity.Property(f => f.DateDeleted)
+                    .IsRequired(false);
+
+                entity.Property(f => f.DateResolved)
+                    .IsRequired(false);
+
+                entity.Property(f => f.ResolvedByUserId)
+                    .IsRequired(false);
+
+                entity.Property(f => f.DeletedByUserId)
+                    .IsRequired(false);
+
+                // Flag -> Question
+                entity.HasOne(f => f.Question)
+                    .WithMany(q => q.QuestionFlag)
+                    .HasForeignKey(f => f.QuestionId)
+                    .IsRequired()
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                // Flag -> QuestionOwnerUser
+                entity.HasOne(f => f.QuestionOwnerUser)
+                    .WithMany(u => u.OwnedQuestionFlag)
+                    .HasForeignKey(f => f.QuestionOwnerUserId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                // Flag -> ReportedByUser
+                entity.HasOne(f => f.ReportedByUser)
+                    .WithMany(u => u.ReportedQuestionFlag)
+                    .HasForeignKey(f => f.ReportedByUserId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                // Flag -> ResolvedByUser
+                entity.HasOne(f => f.ResolvedByUser)
+                    .WithMany(u => u.ResolvedQuestionFlag)
+                    .HasForeignKey(f => f.ResolvedByUserId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                // Flag -> DeletedByUser
+                entity.HasOne(f => f.DeletedByUser)
+                    .WithMany(u => u.DeletedQuestionFlag)
+                    .HasForeignKey(f => f.DeletedByUserId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
+
+            // -----------------------------
+            // Answer
+            // -----------------------------
             modelBuilder.Entity<AnswerEntity>(entity =>
             {
-                //entity.ToTable("Answers");
+                //entity.ToTable("Answer");
                 entity.HasKey(a => a.Id);
 
+                entity.HasIndex(a => a.QuestionId);
                 entity.HasIndex(a => a.UserId);
-
                 entity.HasIndex(a => a.DateCreated);
 
-                entity.HasIndex(a => a.QuestionId);
-
                 entity.Property(a => a.Body)
-                    .IsRequired()
-                    .HasMaxLength(10000);
-
-                entity.Property(a => a.CreatedBy)
-                    .IsRequired()
-                    .HasMaxLength(100);
-
-                entity.Property(a => a.UpVotes)
-                    .IsRequired()
-                    .HasDefaultValue(0);
-
-                entity.Property(a => a.DownVotes)
-                    .IsRequired()
-                    .HasDefaultValue(0) ;
+                    .IsRequired();
 
                 entity.Property(a => a.IsFlagged)
                     .IsRequired()
                     .HasDefaultValue(false);
 
+                entity.Property(a => a.IsDeleted)
+                    .IsRequired()
+                    .HasDefaultValue(false);
+
                 entity.Property(a => a.DateCreated)
-                   .IsRequired()
-                   .HasDefaultValueSql("now()");
+                    .IsRequired()
+                    .HasDefaultValueSql("now()");
 
                 entity.Property(a => a.DateUpdated)
                     .IsRequired()
                     .HasDefaultValueSql("now()");
 
-                //one question can have many answers, each answer has one question
+                entity.Property(a => a.DateDeleted)
+                    .IsRequired(false);
+
+                // Answer -> Question
                 entity.HasOne(a => a.Question)
                     .WithMany(q => q.Answers)
                     .HasForeignKey(a => a.QuestionId)
                     .IsRequired()
-                    .OnDelete(DeleteBehavior.Cascade);
+                    .OnDelete(DeleteBehavior.Restrict);
 
-                // Relationship: User can have many Answers
+                // Answer -> User
                 entity.HasOne(a => a.User)
                     .WithMany(u => u.Answers)
                     .HasForeignKey(a => a.UserId)
-                    .OnDelete(DeleteBehavior.SetNull);
+                    .IsRequired()
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasMany(a => a.AnswerFlag)
+                    .WithOne(f => f.Answer)
+                    .HasForeignKey(f => f.AnswerId)
+                    .IsRequired()
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(a => a.DeletedByUser)
+                    .WithMany()
+                    .HasForeignKey(a => a.DeletedByUserId)
+                    .OnDelete(DeleteBehavior.Restrict);
             });
+
+
+            // -----------------------------
+            // AnswerFlag
+            // -----------------------------
+            modelBuilder.Entity<AnswerFlagEntity>(entity =>
+            {
+                //entity.ToTable("AnswerFlag");
+                entity.HasKey(f => f.Id);
+
+                entity.HasIndex(f => f.AnswerId);
+                entity.HasIndex(f => f.ReportedByUserId);
+                entity.HasIndex(f => f.DateCreated);
+                entity.HasIndex(f => f.IsResolved);
+                entity.HasIndex(f => f.IsDeleted);
+
+                entity.Property(f => f.Reason)
+                    .IsRequired();
+
+                entity.Property(f => f.IsResolved)
+                    .IsRequired()
+                    .HasDefaultValue(false);
+
+                entity.Property(f => f.IsDeleted)
+                    .IsRequired()
+                    .HasDefaultValue(false);
+
+                entity.Property(f => f.DateCreated)
+                    .IsRequired()
+                    .HasDefaultValueSql("now()");
+
+                entity.Property(f => f.DateUpdated)
+                    .IsRequired()
+                    .HasDefaultValueSql("now()");
+
+                entity.Property(f => f.DateDeleted)
+                    .IsRequired(false);
+
+                entity.Property(f => f.DateResolved)
+                    .IsRequired(false);
+
+                entity.Property(f => f.ResolvedByUserId)
+                    .IsRequired(false);
+
+                entity.Property(f => f.DeletedByUserId)
+                    .IsRequired(false);
+
+                // Flag -> Answer
+                entity.HasOne(f => f.Answer)
+                    .WithMany(a => a.AnswerFlag)
+                    .HasForeignKey(f => f.AnswerId)
+                    .IsRequired()
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                // Flag -> AnswerOwnerUser
+                entity.HasOne(f => f.AnswerOwnerUser)
+                    .WithMany(u => u.OwnedAnswerFlag)
+                    .HasForeignKey(f => f.AnswerOwnerUserId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                // Flag -> ReportedByUser
+                entity.HasOne(f => f.ReportedByUser)
+                    .WithMany(u => u.ReportedAnswerFlag)
+                    .HasForeignKey(f => f.ReportedByUserId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                // Flag -> ResolvedByUser (optional)
+                entity.HasOne(f => f.ResolvedByUser)
+                    .WithMany(u => u.ResolvedAnswerFlag)
+                    .HasForeignKey(f => f.ResolvedByUserId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                // Flag -> DeletedByUser (optional)
+                entity.HasOne(f => f.DeletedByUser)
+                    .WithMany(u => u.DeletedAnswerFlag)
+                    .HasForeignKey(f => f.DeletedByUserId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
 
 
             //User
             modelBuilder.Entity<UserEntity>(entity =>
             {
-                //entity.ToTable("Users");
+                //entity.ToTable("User");
                 entity.HasKey(u => u.Id);
 
                 entity.HasIndex(u => u.Email)
@@ -168,8 +343,8 @@ namespace AnswerNow.Data
                     .IsRequired()
                     .HasDefaultValue(false);
 
-
-                entity.Property(u => u.LastLogin);
+                entity.Property(u => u.LastLogin)
+                    .HasDefaultValueSql("now()");
 
                 entity.Property(u => u.DateCreated)
                     .IsRequired()
@@ -185,7 +360,7 @@ namespace AnswerNow.Data
             //RefreshToken
             modelBuilder.Entity<RefreshTokenEntity>(entity =>
             {
-                //entity.ToTable("RefreshTokens");
+                //entity.ToTable("RefreshToken");
                 entity.HasKey(r => r.Id);
 
                 entity.HasIndex(r => r.Token);
@@ -196,7 +371,7 @@ namespace AnswerNow.Data
 
                 //Relationship from token to user
                 entity.HasOne(r => r.User)
-                .WithMany() //user can have multiple refresh token ~ multiple devices
+                .WithMany(u => u.RefreshTokens) //user can have multiple refresh token ~ multiple devices
                 .HasForeignKey(r => r.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 

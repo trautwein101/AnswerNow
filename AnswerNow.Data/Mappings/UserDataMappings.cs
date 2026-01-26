@@ -23,8 +23,11 @@ namespace AnswerNow.Data.Mappings
                 LastLogin = entity.LastLogin,
                 DateCreated = entity.DateCreated,
                 DateUpdated = entity.DateUpdated,
+
                 QuestionCount = entity.Questions?.Count ?? 0,
-                AnswerCount = entity.Answers?.Count ?? 0
+                AnswerCount = entity.Answers?.Count ?? 0,
+                QuestionFlagCount = entity.OwnedQuestionFlag?.Count ?? 0,
+                AnswerFlagCount = entity.OwnedAnswerFlag?.Count ?? 0
             };
         }
 
@@ -37,7 +40,7 @@ namespace AnswerNow.Data.Mappings
                 DisplayName = domain.DisplayName,
                 PasswordHash = domain.PasswordHash,
                 Role = domain.Role,
-                IsProfessional= domain.IsProfessional,
+                IsProfessional = domain.IsProfessional,
                 IsActive = domain.IsActive,
                 IsInActive = domain.IsInActive,
                 IsPending = domain.IsPending,
@@ -45,9 +48,8 @@ namespace AnswerNow.Data.Mappings
                 IsBanned = domain.IsBanned,
                 LastLogin = domain.LastLogin,
                 DateCreated = domain.DateCreated,
-                DateUpdated = domain.DateUpdated,           
+                DateUpdated = domain.DateUpdated
             };
         }
-
     }
 }

@@ -5,7 +5,6 @@ namespace AnswerNow.Data.Mappings
 {
     public static class RefreshTokenDataMappings
     {
-        //Entity to Domain MOdel
         public static RefreshToken ToDomain(this RefreshTokenEntity entity)
         {
             return new RefreshToken
@@ -18,12 +17,10 @@ namespace AnswerNow.Data.Mappings
                 IsRevoked = entity.IsRevoked,
                 RevokedAt = entity.RevokedAt,
                 RevokedReason = entity.RevokedReason,
-                DeviceInfo = entity.DeviceInfo,
-                User = entity.User?.ToDomain() // Convert user too if loaded
+                DeviceInfo = entity.DeviceInfo
             };
         }
 
-        //Domain to Entity
         public static RefreshTokenEntity ToEntity(this RefreshToken domain)
         {
             return new RefreshTokenEntity
@@ -39,6 +36,5 @@ namespace AnswerNow.Data.Mappings
                 DeviceInfo = domain.DeviceInfo
             };
         }
-    
     }
 }

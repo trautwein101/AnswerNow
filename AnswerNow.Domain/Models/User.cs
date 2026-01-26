@@ -15,6 +15,8 @@ namespace AnswerNow.Domain.Models
         public bool IsPending { get; set; } = false;
         public bool IsSuspended { get; set; } = false;
         public bool IsBanned { get; set; } = false;
+        public bool IsDeleted { get; set; } = false;
+        public int? DeletedByUserId { get; set; }
         public DateTime LastLogin { get; set; } = DateTime.UtcNow;
         public DateTime DateCreated { get; set; } = DateTime.UtcNow;
         public DateTime DateUpdated { get; set; } = DateTime.UtcNow;

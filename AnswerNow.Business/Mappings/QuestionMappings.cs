@@ -5,7 +5,6 @@ namespace AnswerNow.Business.Mappings
 {
     public static class QuestionMappings
     {
-
         public static QuestionDto ToDto(this Question entity)
         {
             return new QuestionDto
@@ -14,8 +13,15 @@ namespace AnswerNow.Business.Mappings
                 Title = entity.Title,
                 Body = entity.Body,
                 UserId = entity.UserId,
-                CreatedBy = entity.CreatedBy,
+
+                // DTO display fields – populated in service
+                CreatedByEmail = null,
+                CreatedByDisplayName = null,
+
                 IsFlagged = entity.IsFlagged,
+                IsDeleted = entity.IsDeleted,
+                DateDeleted = entity.DateDeleted,
+
                 DateCreated = entity.DateCreated,
                 DateUpdated = entity.DateUpdated
             };
@@ -29,12 +35,14 @@ namespace AnswerNow.Business.Mappings
                 Title = dto.Title,
                 Body = dto.Body,
                 UserId = dto.UserId,
-                CreatedBy = dto.CreatedBy,
+
                 IsFlagged = dto.IsFlagged,
+                IsDeleted = dto.IsDeleted,
+                DateDeleted = dto.DateDeleted,
+
                 DateCreated = dto.DateCreated,
                 DateUpdated = dto.DateUpdated
             };
         }
-
     }
 }

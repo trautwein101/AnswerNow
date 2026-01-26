@@ -14,18 +14,18 @@ namespace AnswerNow.Business.DTOs
         [Required]
         public string Body { get; set; } = "";
 
-        // Optional - null for anonymous questions, set when user is logged in
+        // Set server-side from authenticated user (not required from client)
         public int UserId { get; set; }
 
-        [Required]
-        public string CreatedBy { get; set; } = "";
+        public string? CreatedByEmail { get; set; }
+        public string? CreatedByDisplayName { get; set; }
 
         public bool IsFlagged { get; set; } = false;
+        public bool IsDeleted { get; set; }
+        public DateTime? DateDeleted { get; set; }
 
         public DateTime DateCreated { get; set; }
-
         public DateTime DateUpdated { get; set; }
-
 
     }
 }

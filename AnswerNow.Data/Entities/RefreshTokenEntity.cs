@@ -13,7 +13,7 @@ namespace AnswerNow.Data.Entities
         public DateTime? RevokedAt { get; set; }
         public string? RevokedReason { get; set; }
         public string? DeviceInfo { get; set; }
-        public UserEntity? User { get; set; }
+        public UserEntity User { get; set; } = null!;
         public bool IsActive => !IsRevoked && ExpiresAt > DateTime.UtcNow;
 
     }

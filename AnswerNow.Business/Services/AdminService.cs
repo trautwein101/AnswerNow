@@ -31,6 +31,10 @@ namespace AnswerNow.Business.Services
             var newUsersThisWeek = await _userRepository.GetNewUsersCountAsync(7);
             var newQuestionsThisWeek = await _questionRepository.GetNewQuestionsCountAsync(7);
             var newAnswersThisWeek = await _answerRepository.GetNewAnswersCountAsync(7);
+            var totalIsFlaggedQuestions = await _questionRepository.GetTotalIsFlaggedCountAsync();
+            var totalIsFlaggedAnswers = await _answerRepository.GetTotalIsFlaggedCountAsync();
+            var newIsFlaggedQuestionsThisWeek = await _questionRepository.GetNewIsFlaggedCountAsync(7);
+            var newIsFlaggedAnswersThisWeek = await _answerRepository.GetNewIsFlaggedCountAsync(7);
 
             return new AdminStats
             {
@@ -39,7 +43,11 @@ namespace AnswerNow.Business.Services
                 TotalAnswers = totalAnswers,
                 NewUsersThisWeek = newUsersThisWeek,
                 NewQuestionsThisWeek = newQuestionsThisWeek,
-                NewAnswersThisWeek = newAnswersThisWeek
+                NewAnswersThisWeek = newAnswersThisWeek,
+                TotalIsFlaggedQuestions = totalIsFlaggedQuestions,
+                TotalIsFlaggedAnswers = totalIsFlaggedAnswers,
+                NewIsFlaggedQuestionsThisWeek = newIsFlaggedQuestionsThisWeek,
+                NewIsFlaggedAnswersThisWeek = newIsFlaggedAnswersThisWeek
             };
 
         }

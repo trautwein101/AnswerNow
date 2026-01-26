@@ -13,4 +13,8 @@
     <Folder Include="Logger\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\AnswerNow.Domain\AnswerNow.Domain.csproj" />
+  </ItemGroup>
+
 </Project>

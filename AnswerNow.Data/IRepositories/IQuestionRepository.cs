@@ -8,11 +8,9 @@ namespace AnswerNow.Data.IRepositories
         Task<Question?> GetByIdAsync(int id);
         Task<Question> CreateAsync(Question question);
 
-        //Admin Methods
+        //Admin & Moderator Methods
         Task<int> GetTotalCountAsync();
         Task<int> GetNewQuestionsCountAsync(int days);
-
-        //Moderator Methods
         Task<int> GetTotalIsFlaggedCountAsync();
         Task<int> GetNewIsFlaggedCountAsync(int days);
 

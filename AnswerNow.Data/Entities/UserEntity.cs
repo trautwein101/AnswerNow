@@ -15,12 +15,25 @@ namespace AnswerNow.Data.Entities
         public bool IsPending { get; set; } = false;
         public bool IsSuspended { get; set; } = false;
         public bool IsBanned { get; set; } = false;
-        public DateTime LastLogin { get; set; } = DateTime.UtcNow;
-        public DateTime DateCreated { get; set; } = DateTime.UtcNow;
-        public DateTime DateUpdated { get; set; } = DateTime.UtcNow;
+        public DateTime LastLogin { get; set; }
+        public DateTime DateCreated { get; set; }
+        public DateTime DateUpdated { get; set; }
 
         public ICollection<QuestionEntity> Questions { get; set; } = new List<QuestionEntity>();
         public ICollection<AnswerEntity> Answers { get; set; } = new List<AnswerEntity>();
+
+        // Question flags (split by role in the workflow)
+        public ICollection<QuestionFlagEntity> OwnedQuestionFlag { get; set; } = new List<QuestionFlagEntity>();
+        public ICollection<QuestionFlagEntity> ReportedQuestionFlag { get; set; } = new List<QuestionFlagEntity>();
+        public ICollection<QuestionFlagEntity> ResolvedQuestionFlag { get; set; } = new List<QuestionFlagEntity>();
+        public ICollection<QuestionFlagEntity> DeletedQuestionFlag { get; set; } = new List<QuestionFlagEntity>();
+
+        // Answer flags (split by role in the workflow)
+        public ICollection<AnswerFlagEntity> OwnedAnswerFlag { get; set; } = new List<AnswerFlagEntity>();
+        public ICollection<AnswerFlagEntity> ReportedAnswerFlag { get; set; } = new List<AnswerFlagEntity>();
+        public ICollection<AnswerFlagEntity> ResolvedAnswerFlag { get; set; } = new List<AnswerFlagEntity>();
+        public ICollection<AnswerFlagEntity> DeletedAnswerFlag { get; set; } = new List<AnswerFlagEntity>();
+
         public ICollection<RefreshTokenEntity> RefreshTokens { get; set; } = new List<RefreshTokenEntity>();
 
     }

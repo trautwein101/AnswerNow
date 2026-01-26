@@ -10,6 +10,10 @@ namespace AnswerNow.Business.DTOs
         public int NewUsersThisWeek { get; set; }
         public int NewQuestionsThisWeek { get;set; }
         public int NewAnswersThisWeek { get; set; }
+        public int TotalIsFlaggedQuestions { get; set; }
+        public int TotalIsFlaggedAnswers { get; set; }
+        public int NewIsFlaggedQuestionsThisWeek { get; set; }
+        public int NewIsFlaggedAnswersThisWeek { get; set; }
 
     }
 }

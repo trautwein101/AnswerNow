@@ -16,7 +16,11 @@ namespace AnswerNow.Business.Mappings
                 TotalAnswers = entity.TotalAnswers,
                 NewAnswersThisWeek = entity.NewAnswersThisWeek,
                 NewQuestionsThisWeek = entity.NewQuestionsThisWeek,
-                NewUsersThisWeek = entity.NewUsersThisWeek
+                NewUsersThisWeek = entity.NewUsersThisWeek,
+                TotalIsFlaggedQuestions = entity.TotalIsFlaggedQuestions,
+                TotalIsFlaggedAnswers = entity.TotalIsFlaggedAnswers,
+                NewIsFlaggedQuestionsThisWeek = entity.NewIsFlaggedQuestionsThisWeek,
+                NewIsFlaggedAnswersThisWeek = entity.NewIsFlaggedAnswersThisWeek
             };
         }
 

@@ -6,9 +6,13 @@ namespace AnswerNow.Domain.Models
         public int TotalUsers { get; set; }
         public int TotalQuestions { get; set; }
         public int TotalAnswers { get; set; }
+        public int TotalIsFlaggedQuestions { get; set; }
+        public int TotalIsFlaggedAnswers { get; set; }
         public int NewUsersThisWeek { get; set; }
         public int NewQuestionsThisWeek { get; set; }
         public int NewAnswersThisWeek { get; set; }
+        public int NewIsFlaggedQuestionsThisWeek { get; set; }
+        public int NewIsFlaggedAnswersThisWeek { get; set; }
 
     }
 }
