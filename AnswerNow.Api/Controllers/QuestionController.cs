@@ -22,9 +22,8 @@ namespace AnswerNow.Api.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<QuestionDto>>> GetAll()
         {
-            var questions = await _questionService.GetAllAsync();
 
-            var result = questions.Select(q => q.ToDto());
+            var result = await _questionService.GetAllDtosAsync();
 
             return Ok(result);
         }
@@ -33,16 +32,9 @@ namespace AnswerNow.Api.Controllers
         [HttpGet("{id:int}")]
         public async Task<ActionResult<QuestionDto>> GetById(int id)
         {
-            var question = await _questionService.GetByIdAsync(id);
+            var result = await _questionService.GetByIdDtoAsync(id);
+            return result == null ? NotFound() : Ok(result);
 
-            if (question == null)
-            {
-                return NotFound(); //404
-            }
-
-            var result = question.ToDto();
-
-            return Ok(result);
         }
 
 

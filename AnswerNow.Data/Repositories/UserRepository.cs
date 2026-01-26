@@ -55,7 +55,7 @@ namespace AnswerNow.Data.Repositories
             var entity = await _dbContext.Users.FindAsync(userId);
             if (entity != null)
             {
-                entity.LastLogin = DateTime.Now;
+                entity.LastLogin = DateTime.UtcNow;
                 await _dbContext.SaveChangesAsync();
             }
         }

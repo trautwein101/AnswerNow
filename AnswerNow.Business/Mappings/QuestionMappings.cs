@@ -14,10 +14,6 @@ namespace AnswerNow.Business.Mappings
                 Body = entity.Body,
                 UserId = entity.UserId,
 
-                // DTO display fields – populated in service
-                CreatedByEmail = null,
-                CreatedByDisplayName = null,
-
                 IsFlagged = entity.IsFlagged,
                 IsDeleted = entity.IsDeleted,
                 DateDeleted = entity.DateDeleted,

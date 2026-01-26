@@ -18,10 +18,20 @@ namespace AnswerNow.Data.Repositories
         public async Task<IEnumerable<Question>> GetAllAsync()
         {
             var entities = await _dbContext.Questions
+                .AsNoTracking()
                 .OrderByDescending(q => q.DateCreated)
                 .ToListAsync();
 
             return entities.Select(e => e.ToDomain());
+        }
+
+        public async Task<List<QuestionEntity>> GetAllWithUsersAsync()
+        {
+            return await _dbContext.Questions
+                .AsNoTracking()
+                .Include(q => q.User)
+                .OrderByDescending(q => q.DateCreated)
+                .ToListAsync();
         }
 
         public async Task<Question?> GetByIdAsync(int id)
@@ -30,18 +40,26 @@ namespace AnswerNow.Data.Repositories
             return entity?.ToDomain();
         }
 
+        public async Task<QuestionEntity?> GetByIdWithUserAsync(int id)
+        {
+            return await _dbContext.Questions
+                .AsNoTracking()
+                .Include(q => q.User)
+                .SingleOrDefaultAsync(q => q.Id == id);
+        }
+
         public async Task<Question> CreateAsync(Question question)
         {
             var entity = question.ToEntity();
-            entity.DateCreated = DateTime.Now;
-            
+            entity.DateCreated = DateTime.UtcNow;
+            entity.DateUpdated = DateTime.UtcNow;
+
             _dbContext.Questions.Add(entity);
             await _dbContext.SaveChangesAsync();
 
             return entity.ToDomain();
 
         }
-
 
         //Admin methods
         public async Task<int> GetTotalCountAsync()
@@ -56,7 +74,6 @@ namespace AnswerNow.Data.Repositories
             return await _dbContext.Questions.CountAsync(q => q.DateCreated >= cutOffDate);
         }
 
-
         //Moderator methods
         public async Task<int> GetTotalIsFlaggedCountAsync()
         {
@@ -66,8 +83,8 @@ namespace AnswerNow.Data.Repositories
         public async Task<int> GetNewIsFlaggedCountAsync(int days)
         {
             var cutOffDate = DateTime.UtcNow.AddDays(-days);
-            
-            return await _dbContext.Questions.CountAsync(q => q.DateCreated >= cutOffDate);
+
+            return await _dbContext.Questions.CountAsync(q => q.IsFlagged && q.DateCreated >= cutOffDate);
         }
 
     }

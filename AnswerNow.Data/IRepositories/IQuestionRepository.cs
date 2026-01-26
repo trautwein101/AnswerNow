@@ -1,11 +1,14 @@
-﻿using AnswerNow.Domain.Models;
+﻿using AnswerNow.Data.Entities;
+using AnswerNow.Domain.Models;
 
 namespace AnswerNow.Data.IRepositories
 {
     public interface IQuestionRepository
     {
         Task<IEnumerable<Question>> GetAllAsync();
+        Task<List<QuestionEntity>> GetAllWithUsersAsync();
         Task<Question?> GetByIdAsync(int id);
+        Task<QuestionEntity?> GetByIdWithUserAsync(int id);
         Task<Question> CreateAsync(Question question);
 
         //Admin & Moderator Methods

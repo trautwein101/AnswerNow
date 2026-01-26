@@ -36,7 +36,7 @@ namespace AnswerNow.Data.Repositories
         {
             // Convert Domain Model → Entity
             var entity = answer.ToEntity();
-            entity.DateCreated = DateTime.Now;
+            entity.DateCreated = DateTime.UtcNow;
             entity.UpVotes = 0;
             entity.DownVotes = 0;
 
@@ -59,7 +59,7 @@ namespace AnswerNow.Data.Repositories
             entity.Body = answer.Body;
             entity.UpVotes = answer.UpVotes;
             entity.DownVotes = answer.DownVotes;
-            entity.DateUpdated = DateTime.Now;
+            entity.DateUpdated = DateTime.UtcNow;
 
             await _dbContext.SaveChangesAsync();
             return entity.ToDomain();
