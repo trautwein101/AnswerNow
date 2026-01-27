@@ -1,20 +1,23 @@
-﻿using AnswerNow.Domain.Models;
+﻿using AnswerNow.Data.Entities;
+using AnswerNow.Domain.Models;
 
 namespace AnswerNow.Data.IRepositories
 {
-    // The Repository Pattern abstracts data access.
+
     public interface IAnswerRepository
     {
-        Task<IEnumerable<Answer>> GetByQuestionIdAsync(int questionId);
+        Task<IEnumerable<Answer>> GetAllAsync();
+        Task<List<AnswerEntity>> GetAllWithUsersAsync();
         Task<Answer?> GetByIdAsync(int id);
-        Task<Answer> CreateAsync(Answer answer);
-        Task<Answer> UpdateAsync(Answer answer);
+        Task<AnswerEntity?> GetByIdWithUserAsync(int id);
+        Task<IEnumerable<Answer>> GetByQuestionIdAsync(int questionId);
 
-        //Admin Methods
+        Task<Answer> UpdateAsync(Answer answer);
+        Task<Answer> CreateAsync(Answer answer);
+
+        //Admin & Moderator Methods
         Task<int> GetTotalCountAsync();
         Task<int> GetNewAnswersCountAsync(int days);
-
-        //Moderator Methods
         Task<int> GetTotalIsFlaggedCountAsync();
         Task<int> GetNewIsFlaggedCountAsync(int days);
 

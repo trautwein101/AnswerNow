@@ -9,6 +9,7 @@ namespace AnswerNow.Data.IRepositories
         Task<List<QuestionEntity>> GetAllWithUsersAsync();
         Task<Question?> GetByIdAsync(int id);
         Task<QuestionEntity?> GetByIdWithUserAsync(int id);
+
         Task<Question> CreateAsync(Question question);
 
         //Admin & Moderator Methods

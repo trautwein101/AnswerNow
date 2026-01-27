@@ -21,14 +21,11 @@ namespace AnswerNow.Api.Controllers
 
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<AnswerDto>>> GetByQuestion(int questionId)
+        public async Task<ActionResult<IEnumerable<AnswerDto>>> GetAll()
         {
-            var answers = await _answerService.GetByQuestionIdAsync(questionId);
-
-            var result = answers.Select(a => a.ToDto());
+            var result = await _answerService.GetAllDtosAsync();
 
             return Ok(result);
-
         }
 
 
@@ -43,6 +40,19 @@ namespace AnswerNow.Api.Controllers
             }
 
             return Ok(answer.ToDto());
+        }
+
+
+        // GET /api/Answer/question/42/answers
+        [HttpGet("question/{questionId:int}/answers")]
+        public async Task<ActionResult<IEnumerable<AnswerDto>>> GetByQuestion(int questionId)
+        {
+            var answers = await _answerService.GetByQuestionIdAsync(questionId);
+
+            var result = answers.Select(a => a.ToDto());
+
+            return Ok(result);
+
         }
 
 

@@ -37,6 +37,7 @@ namespace AnswerNow.Data.Repositories
         public async Task<Question?> GetByIdAsync(int id)
         {
             var entity = await _dbContext.Questions.FindAsync(id);
+
             return entity?.ToDomain();
         }
 

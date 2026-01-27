@@ -14,6 +14,40 @@ namespace AnswerNow.Data.Repositories
             _dbContext = dbContext;
         }
 
+        public async Task<IEnumerable<Answer>> GetAllAsync()
+        {
+            var entities = await _dbContext.Answers
+                .AsNoTracking()
+                .OrderByDescending(a => a.DateCreated)
+                .ToListAsync();
+
+            return entities.Select(a => a.ToDomain());
+        }
+
+        public async Task<List<AnswerEntity>> GetAllWithUsersAsync()
+        {
+            return await _dbContext.Answers
+                .AsNoTracking()
+                .Include(a => a.User)
+                .OrderByDescending(a => a.DateCreated)
+                .ToListAsync();
+        }
+
+        public async Task<Answer?> GetByIdAsync(int id)
+        {
+            var entity = await _dbContext.Answers.FindAsync(id);
+
+            return entity?.ToDomain();
+        }
+
+        public async Task <AnswerEntity?> GetByIdWithUserAsync(int id)
+        {
+            return await _dbContext.Answers
+                .AsNoTracking()
+                .Include(a => a.User)
+                .SingleOrDefaultAsync(a => a.Id == id);
+        }
+
         public async Task<IEnumerable<Answer>> GetByQuestionIdAsync(int questionId)
         {
             var entities = await _dbContext.Answers
@@ -25,16 +59,8 @@ namespace AnswerNow.Data.Repositories
             return entities.Select(e => e.ToDomain());
         }
 
-        public async Task<Answer?> GetByIdAsync(int id)
-        {
-            var entity = await _dbContext.Answers.FindAsync(id);
-
-            return entity?.ToDomain();
-        }
-
         public async Task<Answer> CreateAsync(Answer answer)
         {
-            // Convert Domain Model → Entity
             var entity = answer.ToEntity();
             entity.DateCreated = DateTime.UtcNow;
             entity.UpVotes = 0;
@@ -43,7 +69,6 @@ namespace AnswerNow.Data.Repositories
             _dbContext.Answers.Add(entity);
             await _dbContext.SaveChangesAsync();
 
-            //Return Domain Model
             return entity.ToDomain();
         }
 
@@ -90,7 +115,7 @@ namespace AnswerNow.Data.Repositories
         {
             var cutOffDate = DateTime.UtcNow.AddDays(-days);
 
-            return await _dbContext.Answers.CountAsync(a => a.DateCreated >= cutOffDate);
+            return await _dbContext.Answers.CountAsync(a => a.IsFlagged && a.DateCreated >= cutOffDate);
         }
 
 

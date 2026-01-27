@@ -33,13 +33,11 @@ namespace AnswerNow.Business.Services
            return entities.Select(q => q.ToDto());
         }
 
-
         public async Task<QuestionDto?> GetByIdDtoAsync(int id)
         {
             var entity = await _questionRepository.GetByIdWithUserAsync(id);
             return entity?.ToDto();
         }
-
 
         public async Task<Question> CreateAsync(Question question)
         {
