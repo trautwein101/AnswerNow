@@ -64,5 +64,20 @@ namespace AnswerNow.Api.Controllers
         }
 
 
+        [HttpPost("{id:int}/flagged")]
+        public async Task<ActionResult<QuestionDto>> Flagged(int id, [FromQuery] bool isFlagged)
+        {
+            var question = await _questionService.FlaggedAsync(id, isFlagged);
+
+            if(question == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(question);
+        }
+
+
+
     }
 }

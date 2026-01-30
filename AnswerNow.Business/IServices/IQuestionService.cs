@@ -10,6 +10,7 @@ namespace AnswerNow.Business.IServices
         Task<Question?> GetByIdAsync(int id);
         Task<QuestionDto?> GetByIdDtoAsync(int id);
         Task<Question> CreateAsync(Question question);
+        Task<Question?> FlaggedAsync(int questionId, bool isFlagged);
 
     }
 }

@@ -32,20 +32,15 @@ namespace AnswerNow.Api.Controllers
         [HttpGet("{id:int}")]
         public async Task<ActionResult<AnswerDto>> GetById(int id)
         {
-            var answer = await _answerService.GetByIdAsync(id);
+            var result = await _answerService.GetByIdAsync(id);
+            return result == null ? NotFound() : Ok(result);
 
-            if (answer == null)
-            {
-                return NotFound(); //404
-            }
-
-            return Ok(answer.ToDto());
         }
 
 
         // GET /api/Answer/question/42/answers
         [HttpGet("question/{questionId:int}/answers")]
-        public async Task<ActionResult<IEnumerable<AnswerDto>>> GetByQuestion(int questionId)
+        public async Task<ActionResult<IEnumerable<AnswerDto>>> GetByQuestionId(int questionId)
         {
             var answers = await _answerService.GetByQuestionIdAsync(questionId);
 
@@ -98,6 +93,23 @@ namespace AnswerNow.Api.Controllers
 
             return Ok(answer.ToDto());
         }
+
+
+        // POST /api/Answer/5/flagged?isFlagged=true
+        [HttpPost("{id:int}/flagged")]
+        public async Task<ActionResult<AnswerDto>> Flagged(int id, [FromQuery] bool isFlagged)
+        {
+            var answer = await _answerService.FlaggedAsync(id, isFlagged);
+
+            if(answer == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(answer.ToDto());
+        }
+
+
 
     }
 }

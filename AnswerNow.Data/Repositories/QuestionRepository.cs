@@ -62,6 +62,26 @@ namespace AnswerNow.Data.Repositories
 
         }
 
+
+        public async Task<Question> UpdateAsync(Question question)
+        {
+            var entity = _dbContext.Questions.Find(question.Id);
+
+            if (entity == null)
+            {
+                throw new InvalidOperationException($"Question {question.Id} not found");
+            }
+
+            entity.Title = question.Title;
+            entity.Body = question.Body;
+            entity.IsFlagged = question.IsFlagged;
+            entity.DateUpdated = DateTime.UtcNow;
+
+            await _dbContext.SaveChangesAsync();
+            return entity.ToDomain();                  
+        }
+
+
         //Admin methods
         public async Task<int> GetTotalCountAsync()
         {

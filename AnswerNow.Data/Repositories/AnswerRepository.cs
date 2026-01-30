@@ -84,6 +84,7 @@ namespace AnswerNow.Data.Repositories
             entity.Body = answer.Body;
             entity.UpVotes = answer.UpVotes;
             entity.DownVotes = answer.DownVotes;
+            entity.IsFlagged = answer.IsFlagged;
             entity.DateUpdated = DateTime.UtcNow;
 
             await _dbContext.SaveChangesAsync();

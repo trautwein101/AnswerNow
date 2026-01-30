@@ -11,6 +11,7 @@ namespace AnswerNow.Business.IServices
        Task<IEnumerable<Answer>> GetByQuestionIdAsync(int questionId);
        Task<Answer> CreateAsync(Answer answer);
        Task<Answer?> VoteAsync(int answerId, bool isUpVote);
+       Task<Answer?> FlaggedAsync(int answerId, bool isFlagged);
 
     }
 }

@@ -2,6 +2,7 @@
 using AnswerNow.Business.IServices;
 using AnswerNow.Business.Mappings;
 using AnswerNow.Data.IRepositories;
+using AnswerNow.Domain.Enums;
 using AnswerNow.Domain.Models;
 
 namespace AnswerNow.Business.Services
@@ -10,14 +11,17 @@ namespace AnswerNow.Business.Services
     {
 
         private readonly IAnswerRepository _answerRepository;
-        public AnswerService(IAnswerRepository answerRepository)
+        private readonly ICurrentUserService _currentUserService;
+        public AnswerService(IAnswerRepository answerRepository, ICurrentUserService currentUserService)
         {
             _answerRepository = answerRepository;
+            _currentUserService = currentUserService;
         }
+
 
         public async Task<Answer?> GetByIdAsync(int id)
         {
-            return await _answerRepository.GetByIdAsync(id);        
+            return await _answerRepository.GetByIdAsync(id);
         }
 
         public async Task<IEnumerable<Answer>> GetByQuestionIdAsync(int questionId)
@@ -50,14 +54,10 @@ namespace AnswerNow.Business.Services
             }
         }
 
-        public async Task<Answer?> VoteAsync(int AnswerId, bool isUpVote)
+        public async Task<Answer?> VoteAsync(int answerId, bool isUpVote)
         {
-            var answer = await _answerRepository.GetByIdAsync(AnswerId);
-
-            if (answer == null)
-            {
-                return null;
-            }
+            var answer = await _answerRepository.GetByIdAsync(answerId);
+            if (answer == null) return null;
 
             if (isUpVote)
             {
@@ -69,6 +69,35 @@ namespace AnswerNow.Business.Services
             }
 
             return await _answerRepository.UpdateAsync(answer);
+
+        }
+
+        public async Task<Answer?> FlaggedAsync(int answerId, bool isFlagged)
+        {
+            var answer = await _answerRepository.GetByIdAsync(answerId);
+            if (answer == null) return null;
+
+            var currentUser = _currentUserService.Get();
+
+            // Admin/Moderator: full control
+            if (currentUser.IsAtLeast(UserRole.Moderator))
+            {
+                if (answer.IsFlagged == isFlagged)
+                    return answer; // no change
+
+                answer.IsFlagged = isFlagged;
+                return await _answerRepository.UpdateAsync(answer);
+            }
+
+            // Normal user: only allow false -> true
+            if (!answer.IsFlagged && isFlagged)
+            {
+                answer.IsFlagged = true;
+                return await _answerRepository.UpdateAsync(answer);
+            }
+
+            //no change needed or allowed
+            return answer;
 
         }
 
