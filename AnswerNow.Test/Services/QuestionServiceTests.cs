@@ -4,23 +4,40 @@ using AnswerNow.Business.Services;
 using AnswerNow.Data.IRepositories;
 using AnswerNow.Business.IServices;
 using AnswerNow.Data.Entities;
+using Microsoft.Extensions.Logging;
 
 
 namespace AnswerNow.Tests.Services
 {
-    public class QuestionServiceTest
+    public class QuestionServiceTests
     {
         private readonly Mock<IQuestionRepository> _questionRepositoryMock = new();
         private readonly Mock<ICurrentUserService> _currentUserServiceMock = new();
+        private readonly Mock<ILogger<QuestionService>> _loggerMock = new();
 
         private readonly QuestionService _sut; //sut ~ system under test
 
-        public QuestionServiceTest()
+        public QuestionServiceTests()
         {
             _sut = new QuestionService(
                 _questionRepositoryMock.Object,
-                _currentUserServiceMock.Object
+                _currentUserServiceMock.Object,
+                _loggerMock.Object
              );
+        }
+
+
+        //Helper clsss for logging ~ verify logger called at this severity, contains text message, and with X number of times.
+        private void VerifyLog(LogLevel level, string containsMessage, Times times)
+        {
+            _loggerMock.Verify(
+                x => x.Log(
+                    level,
+                    It.IsAny<EventId>(),
+                    It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains(containsMessage, StringComparison.OrdinalIgnoreCase)),
+                    It.IsAny<Exception>(),
+                    It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+                times);
         }
 
 
@@ -73,6 +90,9 @@ namespace AnswerNow.Tests.Services
                 r => r.UpdateAsync(It.IsAny<Domain.Models.Question>()),
                 Times.Never
             );
+
+            //logging verificaion we should be warned that a question was not found. 
+            VerifyLog(LogLevel.Warning, "question not found", Times.Once());
         }
 
 
@@ -123,6 +143,9 @@ namespace AnswerNow.Tests.Services
                 r => r.UpdateAsync(It.Is<Domain.Models.Question>(q => q.IsFlagged == true)),
                 Times.Once
             );
+
+            //Logging verification to prove we logged the successful moderation action
+            VerifyLog(LogLevel.Information, "Question flagged by normal user", Times.Once());
         }
 
 

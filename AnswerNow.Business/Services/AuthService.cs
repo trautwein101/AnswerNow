@@ -9,6 +9,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using Microsoft.Extensions.Logging;
 
 namespace AnswerNow.Business.Services
 {
@@ -18,19 +19,26 @@ namespace AnswerNow.Business.Services
         private readonly IUserRepository _userRepository;
         private readonly IConfiguration _configuration;
         private readonly IRefreshTokenRepository _refreshTokenRepository;
+        private readonly ILogger<AuthService> _logger;
 
-        public AuthService(IUserRepository userRepository, IConfiguration configuration, IRefreshTokenRepository refreshTokenRepository)
+        public AuthService(IUserRepository userRepository, IConfiguration configuration, IRefreshTokenRepository refreshTokenRepository, ILogger<AuthService> logger)
         {
             _userRepository = userRepository;
             _configuration = configuration;
             _refreshTokenRepository = refreshTokenRepository;
+            _logger = logger;
         }
 
-        // Register New User
+        /// <inheritdoc />
         public async Task<AuthResponse?> RegisterAsync(Register register)
         {
+
+            _logger.LogInformation("Registration attempt. Email={Email}", register.Email);
+
             if (await _userRepository.EmailExistsAsync(register.Email))
             {
+                _logger.LogWarning("Registration failed: email already exists. Email={Email}", register.Email);
+
                 return null; //email is already taken
             }
 
@@ -45,48 +53,59 @@ namespace AnswerNow.Business.Services
 
             var createdUser = await _userRepository.CreateAsync(user);
 
+            _logger.LogInformation("Registration succeeded. UserId={UserId}", createdUser.Id);
+
             //Generate JWT token for immediate login
             return await GenerateAuthResponse(createdUser);
 
         }
 
-        //Login Existing User
+        /// <inheritdoc />
         public async Task<AuthResponse?> LoginAsync(Login login)
         {
+
+            _logger.LogInformation("Login attempt. Email={Email}", login.Email);
 
             var user = await _userRepository.GetByEmailAsync(login.Email);
 
 
             if (user == null)
             {
+                _logger.LogWarning("Login failed: user not found. Email={Email}", login.Email);
                 return null;
             }
 
             //extracts salt from hash and re-hashes
             if (!BCrypt.Net.BCrypt.Verify(login.Password, user.PasswordHash))
             {
+                _logger.LogWarning("Login failed: invalid password. UserId={UserId}", user.Id);
                 return null;  // Wrong password
             }
 
             await _userRepository.UpdateLastLoginAsync(user.Id);
 
+            _logger.LogInformation("Login succeeded. UserId={UserId}", user.Id);
+
             return await GenerateAuthResponse(user);
 
         }
 
-        //Logout Existing User ~ may be one device
+        /// <inheritdoc />
         public async Task LogoutAsync(string refreshToken)
         {
+            _logger.LogInformation("Logout attempt.");
             await _refreshTokenRepository.RevokeAsync(refreshToken, "user logged out");
+            _logger.LogInformation("Logout succeeded.");
         }
 
-        //Logout Existing User
+        /// <inheritdoc />
         public async Task LogoutEverywhereAsync(int userId)
         {
+            _logger.LogInformation("Logout everywhere attempt. UserId={UserId}", userId);
             await _refreshTokenRepository.RevokeAllForUserAsync(userId, "user logged out");
+            _logger.LogInformation("Logout everywhere succeeded. UserId={UserId}", userId);
         }
 
-        // JWT Token Generation - for both access token and refresh token
         private async Task<AuthResponse> GenerateAuthResponse(User user)
         {
    
@@ -138,7 +157,6 @@ namespace AnswerNow.Business.Services
 
         }
 
-        //Refresh token
         private async Task<string> GenerateRefreshToken(int userId)
         {
             var randomBytes = new byte[64];
@@ -161,19 +179,25 @@ namespace AnswerNow.Business.Services
 
         }
 
-        //Refresh Token
+        /// <inheritdoc />
         public async Task<AuthResponse?> RefreshTokenAsync(string refreshToken)
         {
+            _logger.LogInformation("Refresh token attempt.");
+
             //return the domain model
             var storedToken = await _refreshTokenRepository.GetByTokenAsync(refreshToken);
 
             if (storedToken == null || !storedToken.IsActive || storedToken.User == null)
             {
+                _logger.LogWarning("Refresh token failed: invalid or inactive token.");
+
                 return null;
             }
 
             //rotate the refresh token
             await _refreshTokenRepository.RevokeAsync(refreshToken, "Replaced by new token");
+
+            _logger.LogInformation("Refresh token succeeded. UserId={UserId}", storedToken.User.Id);
 
             //user is already a domain model from the mapping
             return await GenerateAuthResponse(storedToken.User);

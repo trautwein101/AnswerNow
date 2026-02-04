@@ -19,6 +19,7 @@ namespace AnswerNow.Business.Services
             _userRepository = userRepository;
         }
 
+        /// <inheritdoc />
         public async Task<ModeratorStats> GetModeratorStatsAsync()
         {
             
@@ -38,12 +39,14 @@ namespace AnswerNow.Business.Services
 
         }
 
+        /// <inheritdoc />
         public async Task<IEnumerable<User>> GetAllUsersAsync()
         {
             return await _userRepository.GetAllAsync();
         }
 
-        //Business logic: suspend and unsuspend
+
+        /// <inheritdoc />
         public async Task<User?> SetUserSuspendStatusAsync(int userId, bool isSuspended)
         {
 
@@ -54,8 +57,6 @@ namespace AnswerNow.Business.Services
             return await _userRepository.UpdateUserStatusAsync(userId, newStatus);
 
         }
-
-
 
         private UserStatus GetNewStatus(User user, UserStatus status, bool value)
         {

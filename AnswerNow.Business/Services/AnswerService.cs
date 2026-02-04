@@ -18,22 +18,25 @@ namespace AnswerNow.Business.Services
             _currentUserService = currentUserService;
         }
 
-
+        /// <inheritdoc />
         public async Task<Answer?> GetByIdAsync(int id)
         {
             return await _answerRepository.GetByIdAsync(id);
         }
 
+        /// <inheritdoc />
         public async Task<IEnumerable<Answer>> GetByQuestionIdAsync(int questionId)
         {
             return await _answerRepository.GetByQuestionIdAsync(questionId);
         }
 
+        /// <inheritdoc />
         public async Task<IEnumerable<Answer>> GetAllAsync()
         {
             return await _answerRepository.GetAllAsync();
         }
 
+        /// <inheritdoc />
         public async Task<IEnumerable<AnswerDto>> GetAllDtosAsync()
         {
             var entities = await _answerRepository.GetAllWithUsersAsync();
@@ -41,12 +44,14 @@ namespace AnswerNow.Business.Services
             return entities.Select(a => a.ToDto());
         }
 
+        /// <inheritdoc />
         public async Task<AnswerDto?> GetByIdDtoAsync(int id)
         {
             var entity = await _answerRepository.GetByIdWithUserAsync(id);
             return entity?.ToDto();
         }
 
+        /// <inheritdoc />
         public async Task<Answer> CreateAsync(Answer answer)
         {
             {
@@ -54,6 +59,7 @@ namespace AnswerNow.Business.Services
             }
         }
 
+        /// <inheritdoc />
         public async Task<Answer?> VoteAsync(int answerId, bool isUpVote)
         {
             var answer = await _answerRepository.GetByIdAsync(answerId);
@@ -72,6 +78,7 @@ namespace AnswerNow.Business.Services
 
         }
 
+        /// <inheritdoc />
         public async Task<Answer?> FlaggedAsync(int answerId, bool isFlagged)
         {
             var answer = await _answerRepository.GetByIdAsync(answerId);
