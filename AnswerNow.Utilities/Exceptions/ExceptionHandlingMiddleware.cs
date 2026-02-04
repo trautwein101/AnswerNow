@@ -32,7 +32,11 @@ namespace AnswerNow.Utilities.Exceptions
 
         public async Task HandleExceptionAsync(HttpContext context, Exception ex)
         {
-            _logger.LogError(ex, "Unhandled exception while processing request {Path}", context.Request);
+            //note: method and path good for ops, traceId for correlation, and excpetion stack trace for logs only ~ no return to clients.
+            _logger.LogError(ex, "Unhandled exception while processing request {Method} {Path}. TraceId={TraceId}", 
+                context.Request.Method,
+                context.Request.Path,
+                context.TraceIdentifier);
 
             context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             context.Response.ContentType = "application/json";

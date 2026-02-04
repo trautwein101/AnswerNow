@@ -15,6 +15,7 @@ namespace AnswerNow.Business.Services
             _contextAccessor = contextAccessor;
         }
 
+        /// <inheritdoc />
         public CurrentUser Get()
         {
             var user = _contextAccessor.HttpContext?.User;

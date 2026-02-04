@@ -8,6 +8,7 @@ using AnswerNow.Data;
 using Microsoft.EntityFrameworkCore;
 using AnswerNow.Data.Repositories;
 using AnswerNow.Data.IRepositories;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,7 +28,12 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    options.IncludeXmlComments(xmlPath);
+});
 
 builder.Services.AddDbContext<AnswerNowDbContext>(options =>
 {

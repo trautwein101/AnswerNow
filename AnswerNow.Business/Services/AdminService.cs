@@ -21,6 +21,7 @@ namespace AnswerNow.Business.Services
             _userRepository = userRepository;
         }
 
+        /// <inheritdoc />
         public async Task<AdminStats> GetAdminStatsAsync()
         {
             
@@ -52,6 +53,7 @@ namespace AnswerNow.Business.Services
 
         }
 
+        /// <inheritdoc />
         public async Task<IEnumerable<User>> GetAllUsersAsync()
         {
             return await _userRepository.GetAllAsync();
@@ -77,7 +79,7 @@ namespace AnswerNow.Business.Services
 
         }
 
-        //Business logic: activate and inactivate
+        /// <inheritdoc />
         public async Task<User?> SetUserActiveStatusAsync(int userId, bool isActive)
         {
 
@@ -89,7 +91,7 @@ namespace AnswerNow.Business.Services
 
         }
 
-        //Business logic: inactivate and activate
+        /// <inheritdoc />
         public async Task<User?> SetUserInActiveStatusAsync(int userId, bool isInActive)
         {
 
@@ -101,7 +103,7 @@ namespace AnswerNow.Business.Services
 
         }
 
-        //Business logic: pending and unpending
+        /// <inheritdoc />
         public async Task<User?> SetUserPendingStatusAsync(int userId, bool isPending)
         {
 
@@ -113,7 +115,7 @@ namespace AnswerNow.Business.Services
 
         }
 
-        //Business logic: suspend and unsuspend
+        /// <inheritdoc />
         public async Task<User?> SetUserSuspendStatusAsync(int userId, bool isSuspended)
         {
 
@@ -125,7 +127,7 @@ namespace AnswerNow.Business.Services
 
         }
 
-        //Business logic: ban or unban
+        /// <inheritdoc />
         public async Task<User?> SetUserBanStatusAsync(int userId, bool isBanned)
         {
             var user = await _userRepository.GetByIdAsync(userId);
