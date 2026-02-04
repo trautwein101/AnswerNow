@@ -10,6 +10,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnswerNow.Domain", "AnswerNow.Domain\AnswerNow.Domain.csproj", "{E54336F7-375A-4234-BBCD-FF2C7DF14942}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnswerNow.Tests", "AnswerNow.Test\AnswerNow.Tests.csproj", "{0CCDF4C7-9F75-4A0E-962E-3412574DBDFE}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B555B662-B7C5-4A3D-BFC3-8B6C3A003822} = {B555B662-B7C5-4A3D-BFC3-8B6C3A003822}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnswerNow.Utilities", "AnswerNow.Utilities\AnswerNow.Utilities.csproj", "{73D55B2C-8667-4BB4-B046-6015D5648F78}"
 EndProject

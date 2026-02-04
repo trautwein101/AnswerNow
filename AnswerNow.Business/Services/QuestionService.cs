@@ -58,7 +58,7 @@ namespace AnswerNow.Business.Services
             // Admin/Moderator: full control
             if (currentUser.IsAtLeast(UserRole.Moderator))
             {
-                if (question.IsFlagged)
+                if (question.IsFlagged == isFlagged)
                     return question; //not change
 
                 question.IsFlagged = isFlagged;
