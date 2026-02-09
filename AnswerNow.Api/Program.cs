@@ -108,3 +108,8 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+
+// WebApplicationFactory<Program> with minimal hosting
+public partial class Program { }
+

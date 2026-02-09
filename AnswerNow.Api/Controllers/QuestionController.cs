@@ -46,7 +46,7 @@ namespace AnswerNow.Api.Controllers
         public async Task<ActionResult<QuestionDto>> GetById(int id)
         {
             var result = await _questionService.GetByIdDtoAsync(id);
-            return result == null ? NotFound() : Ok(result);
+            return Ok(result);
 
         }
 
@@ -101,12 +101,10 @@ namespace AnswerNow.Api.Controllers
         {
             var question = await _questionService.FlaggedAsync(id, isFlagged);
 
-            if(question == null)
-            {
+            if (question == null)
                 return NotFound();
-            }
 
-            return Ok(question);
+            return Ok(question.ToDto());
         }
 
 

@@ -2,9 +2,12 @@
 using System.Text.Json;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using System.Diagnostics;
+using Microsoft.AspNetCore.Mvc;
 
 namespace AnswerNow.Utilities.Exceptions
 {
+    //RFC-7807 ProblemDetails
     public class ExceptionHandlingMiddleware
     {
         private readonly RequestDelegate _next;
@@ -30,28 +33,92 @@ namespace AnswerNow.Utilities.Exceptions
         }
 
 
-        public async Task HandleExceptionAsync(HttpContext context, Exception ex)
+        private async Task HandleExceptionAsync(HttpContext context, Exception ex)
         {
-            //note: method and path good for ops, traceId for correlation, and excpetion stack trace for logs only ~ no return to clients.
-            _logger.LogError(ex, "Unhandled exception while processing request {Method} {Path}. TraceId={TraceId}", 
+            _logger.LogError(
+                ex,
+                "Unhandled exception while processing request {Method} {Path}. TraceId={TraceId}",
                 context.Request.Method,
                 context.Request.Path,
-                context.TraceIdentifier);
+                context.TraceIdentifier
+                );
 
-            context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-            context.Response.ContentType = "application/json";
+            var problem = CreateProblemDetails(context, ex);
 
-            var errorPayload = new
-            {
-                traceId = context.TraceIdentifier, //for correlating logs
-                message = "An unexpected error occured. Please try again later."
-            };
+            context.Response.ContentType = "application/problem+json";
+            context.Response.StatusCode = problem.Status ?? StatusCodes.Status500InternalServerError;
 
-            var json = JsonSerializer.Serialize(errorPayload);
+            var jsonOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web);
+            await context.Response.WriteAsync(JsonSerializer.Serialize(problem, jsonOptions));
 
-            await context.Response.WriteAsync(json);
         }
 
+
+        private ProblemDetails CreateProblemDetails(HttpContext context, Exception ex)
+        {
+
+            //1. Validation errors ~ 400 + field errors
+            if (ex is ValidationAppException vex)
+            {
+                var vpd = new ValidationProblemDetails(
+                    vex.Errors.ToDictionary(k => k.Key, v => v.Value))
+                {
+                    Status = vex.StatusCode,
+                    Title = vex.Title,
+                    Type = vex.Type,
+                    Detail = vex.Message,
+                    Instance = context.Request.Path
+                };
+
+                vpd.Extensions["traceId"] = context.TraceIdentifier;
+                AddActivityId(vpd);
+
+                return vpd;
+
+            }
+
+            //2. Unkown application exceptions
+            if (ex is AppException appEx)
+            {
+                var pd = new ProblemDetails
+                {
+                    Status = appEx.StatusCode,
+                    Title = appEx.Title,
+                    Type = appEx.Type,
+                    Detail = appEx.Message,
+                    Instance = context.Request.Path
+                };
+
+                pd.Extensions["traceId"] = context.TraceIdentifier;
+                AddActivityId(pd);
+                return pd;
+            }
+
+            //3. Fallback 500 errors
+            var fallback = new ProblemDetails
+            {
+                Status = StatusCodes.Status500InternalServerError,
+                Title = "An unexpected error occured.",
+                Type = "https://answernowplace.com/errors/500",
+                Detail = "Please try again later.",
+                Instance = context.Request.Path
+            };
+
+            fallback.Extensions["traceId"] = context.TraceIdentifier;
+            AddActivityId(fallback);
+
+            return fallback;
+
+        }
+
+
+        private static void AddActivityId(ProblemDetails problem)
+        {
+            if (!string.IsNullOrWhiteSpace(Activity.Current?.Id))
+            {
+                problem.Extensions["activityId"] = Activity.Current.Id;
+            }
+        }
 
     }
 }

@@ -5,6 +5,7 @@ using AnswerNow.Data.IRepositories;
 using AnswerNow.Domain.Enums;
 using AnswerNow.Domain.Models;
 using Microsoft.Extensions.Logging;
+using AnswerNow.Utilities.Exceptions;
 
 namespace AnswerNow.Business.Services
 {
@@ -43,10 +44,14 @@ namespace AnswerNow.Business.Services
         }
 
         /// <inheritdoc />
-        public async Task<QuestionDto?> GetByIdDtoAsync(int id)
+        public async Task<QuestionDto> GetByIdDtoAsync(int id)
         {
             var entity = await _questionRepository.GetByIdWithUserAsync(id);
-            return entity?.ToDto();
+
+            if (entity == null)
+                throw new NotFoundAppException($"Question {id} was not found.");
+
+            return entity.ToDto();
         }
 
         /// <inheritdoc />
@@ -68,7 +73,7 @@ namespace AnswerNow.Business.Services
                 _logger.LogWarning("Flag request failed: question not found. QuestionId={QuestionId}",
                     questionId);
 
-                return null;
+                throw new NotFoundAppException($"Question {questionId} was not found.");
             }
 
             var currentUser = _currentUserService.Get();
@@ -112,7 +117,7 @@ namespace AnswerNow.Business.Services
             _logger.LogWarning("Flag change denied. QuestionId={QuestionId}, Role={Role}, Current={Current}, Requested={Requested}",
                 questionId, currentUser.Role, question.IsFlagged, isFlagged);
 
-            return question;
+            throw new ForbiddenAppException("Apologies, but you are not allowed to change the flagged state of this question.");
         }
 
     }
