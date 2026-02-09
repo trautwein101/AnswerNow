@@ -12,20 +12,51 @@ using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var corsPolicyName = "AllowAngularDev";
 
+// -----------------------------
+// Environments
+// -----------------------------
+builder.Configuration
+    .AddJsonFile(
+        $"environments/appsettings.{builder.Environment.EnvironmentName}.json",
+        optional: true,
+        reloadOnChange: true);
+
+// -----------------------------
 // CORS ~ Cross-Origin Resource Sharing
+// -----------------------------
+const string corsPolicyName = "FrontendCors";
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(corsPolicyName, policy =>
     {
-        policy
-            .WithOrigins("http://localhost:4200")
-            .AllowAnyHeader()
-            .AllowAnyMethod();
+        var origins = builder.Configuration
+            .GetSection("App:FrontendOrigins")
+            .Get<string[]>() ?? Array.Empty<string>();
+
+        if (builder.Environment.IsEnvironment("DEV") || builder.Environment.IsDevelopment())
+        {
+           if(origins.Length ==0)
+            {
+                origins = new[] { "http://localhost:4200" };
+            }
+        }
+
+        if(origins.Length > 0)
+        {
+            policy
+               .WithOrigins(origins)
+               .AllowAnyHeader()
+               .AllowAnyMethod();
+        }
     });
 });
 
+
+// -----------------------------
+// Controllers + Swagger
+// -----------------------------
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
@@ -35,12 +66,30 @@ builder.Services.AddSwaggerGen(options =>
     options.IncludeXmlComments(xmlPath);
 });
 
+// -----------------------------
+// Health checks
+// -----------------------------
+builder.Services.AddHealthChecks();
+
+// -----------------------------
+// DB (still in-memory )
+// -----------------------------
 builder.Services.AddDbContext<AnswerNowDbContext>(options =>
 {
     options.UseInMemoryDatabase("AnswerNowDb");
 });
 
-// JWT AUTHENTICATION CONFIGURATION
+// -----------------------------
+// JWT Authentication Configuration
+// -----------------------------
+var jwtSecret = builder.Configuration["Jwt:SecretKey"];
+
+if (string.IsNullOrWhiteSpace(jwtSecret))
+{
+    throw new InvalidOperationException(
+        "JWT secret key is missing? Please setup configuration.");
+}
+
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -50,29 +99,26 @@ builder.Services.AddAuthentication(options =>
 {
     options.TokenValidationParameters = new TokenValidationParameters
     {
-        //validate issuer
         ValidateIssuer = true,
         ValidIssuer = builder.Configuration["Jwt:Issuer"],
 
-        //validate audience
         ValidateAudience = true,
         ValidAudience = builder.Configuration["Jwt:Audience"],
 
-        //validate signing key
         ValidateIssuerSigningKey = true,
         IssuerSigningKey = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(builder.Configuration["Jwt:SecretKey"]!)
+            Encoding.UTF8.GetBytes(jwtSecret)
         ),
 
-        //validate expiration
         ValidateLifetime = true,
         ClockSkew = TimeSpan.Zero //no tolerance for expiration smokey!
 
     };
 });
 
-
-//Register Services
+// -----------------------------
+// Register Services
+// -----------------------------
 builder.Services.AddScoped<IAdminService,  AdminService>();
 builder.Services.AddScoped<IModeratorService, ModeratorService>();
 builder.Services.AddScoped<IAnswerService, AnswerService>();
@@ -88,9 +134,10 @@ builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 
 var app = builder.Build();
 
-
+// -----------------------------
 // ENVIRONMENT
-if (app.Environment.IsDevelopment())
+// -----------------------------
+if (app.Environment.IsEnvironment("DEV") || app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
@@ -105,6 +152,7 @@ app.UseCors(corsPolicyName);
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.MapHealthChecks("/health");
 app.MapControllers();
 
 app.Run();
