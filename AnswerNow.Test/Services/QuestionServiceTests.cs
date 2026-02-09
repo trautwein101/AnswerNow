@@ -5,7 +5,8 @@ using AnswerNow.Data.IRepositories;
 using AnswerNow.Business.IServices;
 using AnswerNow.Data.Entities;
 using Microsoft.Extensions.Logging;
-
+using FluentAssertions;
+using AnswerNow.Utilities.Exceptions;
 
 namespace AnswerNow.Tests.Services
 {
@@ -42,7 +43,7 @@ namespace AnswerNow.Tests.Services
 
 
         [Fact] //NEG Test
-        public async Task GetByIdDtoAsync_WhenEntityDoesNotExist_ReturnsNull()
+        public async Task GetByIdDtoAsync_WhenEntityDoesNotExist_ThrowsNotFound()
         {
             //If repository returns null, the service will return null
 
@@ -55,19 +56,19 @@ namespace AnswerNow.Tests.Services
                 .ReturnsAsync((QuestionEntity?)null);
 
             //ACT
-            var result = await _sut.GetByIdDtoAsync(questionId);
+            Func<Task> act = async () => await _sut.GetByIdDtoAsync(questionId);
 
-            //ASSERT ~ since entity is null we return null
-            Assert.Null(result);
+            //ASSERT ~ since entity is null we return null  ~ note: refactored as old code
+            await act.Should().ThrowAsync<NotFoundAppException>()
+                .WithMessage("*100*");
 
         }
 
 
 
         [Fact] //NEG Test
-        public async Task FlaggedAsync_WhenQuestionDoesNotExist_ReturnsNull()
+        public async Task FlaggedAsync_WhenQuestionDoesNotExist_ThrowsNotFound()
         {
-
 
             //If qustion does not exist as null you cannot update it.
 
@@ -80,10 +81,11 @@ namespace AnswerNow.Tests.Services
                 .ReturnsAsync((Domain.Models.Question?)null);
 
             //ACT
-            var result = await _sut.FlaggedAsync(questionId, isFlagged: true);
+            Func<Task> act = async () => await _sut.FlaggedAsync(questionId, true);
 
             //ASSERT
-            Assert.Null(result);
+            await act.Should().ThrowAsync<NotFoundAppException>()
+                .WithMessage("*42*");
 
             //note: If nothing was found, no update should be attempted
             _questionRepositoryMock.Verify(
@@ -150,7 +152,7 @@ namespace AnswerNow.Tests.Services
 
 
         [Fact] //POS
-        public async Task FlaggedAsync_NormalUser_TrueToFalse_DoesNotUnflagAndDoesNotUpdate()
+        public async Task FlaggedAsync_NormalUser_TrueToFalse_DoesNotUnflagAndDoesNotUpdate_ForbiddenAppException()
         {
             
             //Normal user will try to unflag something that is already flagged and not allowed
@@ -178,13 +180,10 @@ namespace AnswerNow.Tests.Services
                 .Returns(normalUser);
 
             //ACT ~ normal user will try to unflag but not allowed
-            var result = await _sut.FlaggedAsync(question.Id, isFlagged: false);
+            Func<Task> act = async () => await _sut.FlaggedAsync(question.Id, isFlagged: false);
 
             //ASSERT
-            Assert.NotNull(result);
-
-            //Busines rule ~ normal user cannot unflag once content is flagged
-            Assert.True(result!.IsFlagged);
+            await act.Should().ThrowAsync<ForbiddenAppException>();
 
             //Safeguard ~ since action not allowed, we must not write to persistance
             _questionRepositoryMock.Verify(
@@ -348,29 +347,23 @@ namespace AnswerNow.Tests.Services
             var question = new Domain.Models.Question
             {
                 Id = 6,
-                IsFlagged = true
+                IsFlagged = false
             };
 
             _questionRepositoryMock
                 .Setup(r => r.GetByIdAsync(question.Id))
                 .ReturnsAsync(question);
 
-            var elevatedUser = new Domain.Models.CurrentUser
-            {
-                Role = role
-            };
-
             _currentUserServiceMock
                 .Setup(s => s.Get())
-                .Returns(elevatedUser);
+                .Returns(new Domain.Models.CurrentUser { Role = role });
 
             //ACT 
-            var result = await _sut.FlaggedAsync(question.Id, isFlagged: true);
+            var result = await _sut.FlaggedAsync(question.Id, isFlagged: false);
 
             //ASSERT
-            Assert.NotNull(result);
-
-            Assert.True(result!.IsFlagged);
+            result.Should().NotBeNull();
+            result!.IsFlagged.Should().BeFalse();
 
             //Update should never be called for optimization
             _questionRepositoryMock.Verify(

@@ -9,7 +9,6 @@
   <ItemGroup>
 	<FrameworkReference Include="Microsoft.AspNetCore.App" />
     <Folder Include="Constants\" />
-    <Folder Include="Exceptions\" />
     <Folder Include="Logging\" />
   </ItemGroup>
 

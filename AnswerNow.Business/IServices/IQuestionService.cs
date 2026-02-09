@@ -29,7 +29,7 @@ namespace AnswerNow.Business.IServices
         /// Retrieves a question as a DTO by its unique identifier.
         /// </summary>
         /// <param name="id">The unique ID of the question.</param>
-        Task<QuestionDto?> GetByIdDtoAsync(int id);
+        Task<QuestionDto> GetByIdDtoAsync(int id);
 
         /// <summary>
         /// Creates a new question.
