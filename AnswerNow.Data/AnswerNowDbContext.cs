@@ -13,8 +13,8 @@ namespace AnswerNow.Data
 
         public DbSet<QuestionEntity> Questions { get; set; } = null!;
         public DbSet<AnswerEntity> Answers { get; set; } = null!;
-        public DbSet<QuestionFlagEntity> QuestionFlag { get; set; } = null!;
-        public DbSet<AnswerFlagEntity> AnswerFlag { get; set; } = null!;
+        public DbSet<QuestionFlagEntity> QuestionFlags { get; set; } = null!;
+        public DbSet<AnswerFlagEntity> AnswerFlags { get; set; } = null!;
         public DbSet<UserEntity> Users { get; set; } = null!;
         public DbSet<RefreshTokenEntity> RefreshTokens { get; set; } = null!;
 
@@ -27,7 +27,7 @@ namespace AnswerNow.Data
             // -----------------------------
             modelBuilder.Entity<QuestionEntity>(entity =>
             {
-                //entity.ToTable("Question");
+                entity.ToTable("questions");
                 entity.HasKey(q => q.Id);
 
                 entity.HasIndex(q => q.UserId);
@@ -76,11 +76,11 @@ namespace AnswerNow.Data
 
 
             // -----------------------------
-            // QuestionFlag
+            // QuestionFlags
             // -----------------------------
             modelBuilder.Entity<QuestionFlagEntity>(entity =>
             {
-                //entity.ToTable("QuestionFlag");
+                entity.ToTable("question_flags");
                 entity.HasKey(f => f.Id);
 
                 entity.HasIndex(f => f.QuestionId);
@@ -159,7 +159,7 @@ namespace AnswerNow.Data
             // -----------------------------
             modelBuilder.Entity<AnswerEntity>(entity =>
             {
-                //entity.ToTable("Answer");
+                entity.ToTable("answers");
                 entity.HasKey(a => a.Id);
 
                 entity.HasIndex(a => a.QuestionId);
@@ -220,7 +220,7 @@ namespace AnswerNow.Data
             // -----------------------------
             modelBuilder.Entity<AnswerFlagEntity>(entity =>
             {
-                //entity.ToTable("AnswerFlag");
+                entity.ToTable("answer_flags");
                 entity.HasKey(f => f.Id);
 
                 entity.HasIndex(f => f.AnswerId);
@@ -297,7 +297,7 @@ namespace AnswerNow.Data
             //User
             modelBuilder.Entity<UserEntity>(entity =>
             {
-                //entity.ToTable("User");
+                entity.ToTable("users");
                 entity.HasKey(u => u.Id);
 
                 entity.HasIndex(u => u.Email)
@@ -360,7 +360,7 @@ namespace AnswerNow.Data
             //RefreshToken
             modelBuilder.Entity<RefreshTokenEntity>(entity =>
             {
-                //entity.ToTable("RefreshToken");
+                entity.ToTable("refresh_tokens");
                 entity.HasKey(r => r.Id);
 
                 entity.HasIndex(r => r.Token);
