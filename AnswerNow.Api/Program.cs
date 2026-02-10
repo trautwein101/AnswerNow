@@ -1,14 +1,17 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using AnswerNow.Business.IServices;
 using AnswerNow.Business.Services;
-using AnswerNow.Utilities.Extensions;
 using AnswerNow.Data;
-using Microsoft.EntityFrameworkCore;
-using AnswerNow.Data.Repositories;
 using AnswerNow.Data.IRepositories;
+using AnswerNow.Data.Repositories;
+using AnswerNow.Utilities.Extensions;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using System.Reflection;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -69,7 +72,12 @@ builder.Services.AddSwaggerGen(options =>
 // -----------------------------
 // Health checks
 // -----------------------------
-builder.Services.AddHealthChecks();
+builder.Services.AddHealthChecks()
+    .AddNpgSql(
+        builder.Configuration.GetConnectionString("Default")!,
+        name: "postgres",
+        failureStatus: HealthStatus.Unhealthy,
+        tags: new[] { "ready" });
 
 // -----------------------------
 // DB (PostgreSQL with Entity Framework Core)
@@ -81,7 +89,10 @@ builder.Services.AddDbContext<AnswerNowDbContext>(options =>
     if (string.IsNullOrWhiteSpace(connectionString))
         throw new InvalidOperationException("Missing ConnectionStrings:Default configuration.");
 
-    options.UseNpgsql(connectionString);
+    options.UseNpgsql(connectionString, npgsqlOptions =>
+    {
+        npgsqlOptions.EnableRetryOnFailure(5);
+    });
 });
 
 // -----------------------------
@@ -164,7 +175,14 @@ app.UseCors(corsPolicyName);
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapHealthChecks("/health");
+app.MapHealthChecks("/health/live");
+
+app.MapHealthChecks("/health/ready", new HealthCheckOptions
+{
+    Predicate = r => r.Tags.Contains("ready")
+});
+
+
 app.MapControllers();
 
 app.Run();
