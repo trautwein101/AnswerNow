@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: answernow-postgres
+    environment:
+      POSTGRES_USER: answernow
+      POSTGRES_PASSWORD: answernow_pw
+      POSTGRES_DB: answernow_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - answernow_pgdata:/var/lib/postgresql/data
+
+volumes:
+  answernow_pgdata:
