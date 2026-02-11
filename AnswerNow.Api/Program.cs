@@ -1,20 +1,20 @@
+using Amazon.Lambda.AspNetCoreServer.Hosting;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Reflection;
+using System.Text;
 using AnswerNow.Business.IServices;
 using AnswerNow.Business.Services;
 using AnswerNow.Data;
 using AnswerNow.Data.IRepositories;
 using AnswerNow.Data.Repositories;
 using AnswerNow.Utilities.Extensions;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Diagnostics.HealthChecks;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using System.Reflection;
-using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
-
+var isLambda = !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("AWS_LAMBDA_FUNCTION_NAME"));
 
 // -----------------------------
 // Environments
@@ -58,9 +58,16 @@ builder.Services.AddCors(options =>
 
 
 // -----------------------------
-// Controllers + Swagger
+// Controllers + Swagger + AWS
 // -----------------------------
 builder.Services.AddControllers();
+
+//note: run behind api gateway HTTP API once hosted in AWS Lambda
+if (isLambda)
+{
+    builder.Services.AddAWSLambdaHosting(LambdaEventSource.HttpApi);
+}
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -72,28 +79,35 @@ builder.Services.AddSwaggerGen(options =>
 // -----------------------------
 // Health checks
 // -----------------------------
-builder.Services.AddHealthChecks()
-    .AddNpgSql(
-        builder.Configuration.GetConnectionString("Default")!,
+
+var connectionString = builder.Configuration.GetConnectionString("Default");
+var healthChecks = builder.Services.AddHealthChecks();
+
+//note: only add postgres readiness check after db is configured for app boot in AWS before RDS exists.
+if (!string.IsNullOrWhiteSpace(connectionString))
+{
+    healthChecks.AddNpgSql(
+        connectionString,
         name: "postgres",
         failureStatus: HealthStatus.Unhealthy,
         tags: new[] { "ready" });
+}
 
 // -----------------------------
 // DB (PostgreSQL with Entity Framework Core)
 // -----------------------------
-builder.Services.AddDbContext<AnswerNowDbContext>(options =>
+
+//note: only register DbContext when DB is configured after we set ConnectionStrings__Default in Lambda and it becomes active.
+if (!string.IsNullOrWhiteSpace(connectionString))
 {
-    var connectionString = builder.Configuration.GetConnectionString("Default");
-
-    if (string.IsNullOrWhiteSpace(connectionString))
-        throw new InvalidOperationException("Missing ConnectionStrings:Default configuration.");
-
-    options.UseNpgsql(connectionString, npgsqlOptions =>
+    builder.Services.AddDbContext<AnswerNowDbContext>(options =>
     {
-        npgsqlOptions.EnableRetryOnFailure(5);
+        options.UseNpgsql(connectionString, npgsqlOptions =>
+        {
+            npgsqlOptions.EnableRetryOnFailure(5);
+        });
     });
-});
+}
 
 // -----------------------------
 // JWT Authentication Configuration
@@ -168,7 +182,10 @@ if (app.Environment.IsEnvironment("DEV") || app.Environment.IsDevelopment())
 
 app.UseGlobalExceptionHandling();
 
-app.UseHttpsRedirection();
+if (!isLambda)
+{
+    app.UseHttpsRedirection();
+}
 
 app.UseCors(corsPolicyName);
 
