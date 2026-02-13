@@ -14,10 +14,9 @@ Globals:
       Variables:
         ASPNETCORE_ENVIRONMENT: DEV
         DOTNET_ENVIRONMENT: DEV
-        Jwt__SecretKey: placeholder-dev-secret-change-later
-        # Do NOT set ConnectionStrings__Default yet. We'll add it in DB step (Section 2).
 
 Resources:
+
   AnswerNowHttpApi:
     Type: AWS::Serverless::HttpApi
     Properties:
@@ -29,6 +28,7 @@ Resources:
       FunctionName: answernow-api-dev
       CodeUri: ../../AnswerNow.Api/
       Handler: AnswerNow.Api
+
       Events:
         ProxyApi:
           Type: HttpApi
@@ -36,10 +36,31 @@ Resources:
             ApiId: !Ref AnswerNowHttpApi
             Path: /{proxy+}
             Method: ANY
+
       Policies:
         - AWSLambdaBasicExecutionRole
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - secretsmanager:GetSecretValue
+                - kms:Decrypt
+              Resource: "*"
+
       LoggingConfig:
         LogFormat: JSON
+
+      VpcConfig:
+        SubnetIds:
+          - subnet-0c3dd7b54240a5b4b
+          - subnet-0c5f1f239704e31d8
+        SecurityGroupIds:
+          - sg-04aa15969df7ed3b2
+
+      Environment:
+        Variables:
+          ConnectionStrings__Default: "{{resolve:secretsmanager:answernow/db/dev:SecretString:ConnectionString}}"
+          Jwt__SecretKey: "{{resolve:secretsmanager:answernow/jwt/dev:SecretString:SecretKey}}"
 
   AnswerNowApiLogGroup:
     Type: AWS::Logs::LogGroup
@@ -49,11 +70,13 @@ Resources:
 
 Outputs:
   ApiInvokeUrl:
-    Description: "HTTP API invoke base URL"
+    Description: HTTP API invoke base URL
     Value: !Sub "https://${AnswerNowHttpApi}.execute-api.${AWS::Region}.amazonaws.com"
+
   LambdaFunctionName:
-    Description: "Lambda function name"
+    Description: Lambda function name
     Value: !Ref AnswerNowApiFunction
+
   HttpApiId:
-    Description: "HTTP API id"
+    Description: HTTP API id
     Value: !Ref AnswerNowHttpApi
