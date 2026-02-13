@@ -17,6 +17,12 @@ var builder = WebApplication.CreateBuilder(args);
 var isLambda = !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("AWS_LAMBDA_FUNCTION_NAME"));
 
 // -----------------------------
+// AWS Cloudwatch logging
+// -----------------------------
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+
+// -----------------------------
 // Environments
 // -----------------------------
 builder.Configuration
@@ -83,6 +89,9 @@ builder.Services.AddSwaggerGen(options =>
 var connectionString = builder.Configuration.GetConnectionString("Default");
 var healthChecks = builder.Services.AddHealthChecks();
 
+//reflects “no DB configured”
+healthChecks.AddCheck("ready-self", () => HealthCheckResult.Healthy(), tags: new[] { "ready" });
+
 //note: only add postgres readiness check after db is configured for app boot in AWS before RDS exists.
 if (!string.IsNullOrWhiteSpace(connectionString))
 {
@@ -114,7 +123,7 @@ if (!string.IsNullOrWhiteSpace(connectionString))
 // -----------------------------
 var jwtSecret = builder.Configuration["Jwt:SecretKey"];
 
-//note: During EF design-time migration, supress JWT configuration to avoid crashing tooling and CI pipelines.
+//note: During EF design-time migration, suppress JWT configuration to avoid crashing tooling and CI pipelines.
 var isEfDesignTime = AppDomain.CurrentDomain.FriendlyName.Contains("ef", StringComparison.OrdinalIgnoreCase);
 
 if (string.IsNullOrWhiteSpace(jwtSecret) && !isEfDesignTime)
@@ -170,6 +179,18 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 
 var app = builder.Build();
+
+// -----------------------------
+// DB EF Migrations ~ DEV (AWS RDS bootstrap)
+// -----------------------------
+if(!string.IsNullOrWhiteSpace(connectionString) && (app.Environment.IsEnvironment("DEV") || app.Environment.IsDevelopment()))
+{
+    using var scope = app.Services.CreateScope();
+
+    //Resolve DbContext from DI and migrate it...
+    var db = scope.ServiceProvider.GetRequiredService<AnswerNowDbContext>();
+    db.Database.Migrate();
+}
 
 // -----------------------------
 // ENVIRONMENT
