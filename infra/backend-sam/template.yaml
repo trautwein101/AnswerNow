@@ -20,7 +20,21 @@ Resources:
   AnswerNowHttpApi:
     Type: AWS::Serverless::HttpApi
     Properties:
-      StageName: $default
+      StageName: "$default"
+      CorsConfiguration:
+          AllowOrigins:
+            - "http://localhost:4200"
+            - "https://dev.answernowplace.com"
+          AllowMethods:
+            - GET
+            - POST
+            - PUT
+            - DELETE
+            - OPTIONS
+          AllowHeaders:
+            - Authorization
+            - Content-Type
+          AllowCredentials: true
 
   AnswerNowApiFunction:
     Type: AWS::Serverless::Function

@@ -7,10 +7,6 @@ Parameters:
     AllowedValues: [dev, qa, prod]
     Description: Deployment environment
 
-  AppStackName:
-    Type: String
-    Description: CloudFormation stack name of the AnswerNow application stack
-
   AlertEmail:
     Type: String
     Description: Email address for operational alerts
@@ -24,10 +20,18 @@ Parameters:
     Default: 25
     Description: Monthly AWS budget limit in USD
 
+  HttpApiId:
+    Type: String
+    Description: HTTP API Id (ApiGatewayV2)
+
   HttpApiStageName:
     Type: String
-    Default: $default
+    Default: "$default"
     Description: HTTP API stage name
+
+  LambdaFunctionName:
+    Type: String
+    Description: Lambda function name (FunctionName dimension)
 
   RdsDbInstanceIdentifier:
     Type: String
@@ -43,7 +47,6 @@ Conditions:
   HasRds: !Not [!Equals [!Ref RdsDbInstanceIdentifier, ""]]
 
 Resources:
-
   AlarmTopic:
     Type: AWS::SNS::Topic
     Properties:
@@ -99,8 +102,7 @@ Resources:
       MetricName: Errors
       Dimensions:
         - Name: FunctionName
-          Value: !ImportValue
-            'Fn::Sub': 'answernow-${AppStackName}-LambdaFunctionName'
+          Value: !Ref LambdaFunctionName
       Statistic: Sum
       Period: 300
       EvaluationPeriods: 2
@@ -118,8 +120,7 @@ Resources:
       MetricName: Throttles
       Dimensions:
         - Name: FunctionName
-          Value: !ImportValue
-            'Fn::Sub': 'answernow-${AppStackName}-LambdaFunctionName'
+          Value: !Ref LambdaFunctionName
       Statistic: Sum
       Period: 300
       EvaluationPeriods: 2
@@ -137,8 +138,7 @@ Resources:
       MetricName: 5xx
       Dimensions:
         - Name: ApiId
-          Value: !ImportValue
-            'Fn::Sub': 'answernow-${AppStackName}-HttpApiId'
+          Value: !Ref HttpApiId
         - Name: Stage
           Value: !Ref HttpApiStageName
       Statistic: Sum
