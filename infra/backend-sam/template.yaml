@@ -72,11 +72,17 @@ Outputs:
   ApiInvokeUrl:
     Description: HTTP API invoke base URL
     Value: !Sub "https://${AnswerNowHttpApi}.execute-api.${AWS::Region}.amazonaws.com"
+    Export:
+      Name: !Sub "answernow-${AWS::StackName}-ApiInvokeUrl"
 
   LambdaFunctionName:
     Description: Lambda function name
     Value: !Ref AnswerNowApiFunction
+    Export:
+      Name: !Sub "answernow-${AWS::StackName}-LambdaFunctionName"
 
   HttpApiId:
     Description: HTTP API id
     Value: !Ref AnswerNowHttpApi
+    Export:
+      Name: !Sub "answernow-${AWS::StackName}-HttpApiId"
