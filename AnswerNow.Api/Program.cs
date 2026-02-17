@@ -27,7 +27,7 @@ builder.Logging.AddConsole();
 // -----------------------------
 builder.Configuration
     .AddJsonFile(
-        $"environments/appsettings.{builder.Environment.EnvironmentName}.json",
+        $"Environments/appsettings.{builder.Environment.EnvironmentName}.json",
         optional: true,
         reloadOnChange: true);
 
@@ -42,23 +42,24 @@ builder.Services.AddCors(options =>
     {
         var origins = builder.Configuration
             .GetSection("App:FrontendOrigins")
-            .Get<string[]>() ?? Array.Empty<string>();
+            .Get<string[]>();
 
-        if (builder.Environment.IsEnvironment("DEV") || builder.Environment.IsDevelopment())
+        // Fallback if config missing (safe defaults)
+        if (origins == null || origins.Length == 0)
         {
-           if(origins.Length ==0)
+            origins = new[]
             {
-                origins = new[] { "http://localhost:4200" };
-            }
+                "http://localhost:4200",
+                "https://answernowplace.com"
+                // later: "https://www.answernowplace.com"
+            };
         }
 
-        if(origins.Length > 0)
-        {
-            policy
-               .WithOrigins(origins)
-               .AllowAnyHeader()
-               .AllowAnyMethod();
-        }
+        policy
+            .WithOrigins(origins)
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .SetPreflightMaxAge(TimeSpan.FromHours(1));
     });
 });
 

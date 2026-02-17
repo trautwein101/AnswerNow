@@ -30,11 +30,27 @@ Resources:
     Type: AWS::Serverless::HttpApi
     Properties:
       StageName: $default
+
+      CorsConfiguration:
+        AllowOrigins:
+          - "https://answernowplace.com"
+        AllowHeaders:
+          - "content-type"
+          - "authorization"
+        AllowMethods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+          - OPTIONS
+        MaxAge: 86400
+
       Tags:
         Project: AnswerNow
         Environment: prod
         ManagedBy: SAM
         Owner: Jason
+
 
   AnswerNowApiFunction:
     Type: AWS::Serverless::Function
