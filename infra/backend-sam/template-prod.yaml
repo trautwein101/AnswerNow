@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: AnswerNow Backend - DEV (HTTP API + Lambda, .NET 8)
+Description: AnswerNow Backend - PROD (HTTP API + Lambda, .NET 8)
 
 Globals:
   Function:
@@ -12,36 +12,42 @@ Globals:
     Tracing: Active
     Environment:
       Variables:
-        ASPNETCORE_ENVIRONMENT: DEV
-        DOTNET_ENVIRONMENT: DEV
+        ASPNETCORE_ENVIRONMENT: PROD
+        DOTNET_ENVIRONMENT: PROD
+
+Parameters:
+  DbSecretArn:
+    Type: String
+    Description: ARN of Secrets Manager secret containing ConnectionString key
+
+  JwtSecretArn:
+    Type: String
+    Description: ARN of Secrets Manager secret containing SecretKey key
 
 Resources:
 
   AnswerNowHttpApi:
     Type: AWS::Serverless::HttpApi
     Properties:
-      StageName: "$default"
-      CorsConfiguration:
-          AllowOrigins:
-            - "http://localhost:4200"
-            - "https://dev.answernowplace.com"
-          AllowMethods:
-            - GET
-            - POST
-            - PUT
-            - DELETE
-            - OPTIONS
-          AllowHeaders:
-            - Authorization
-            - Content-Type
-          AllowCredentials: true
+      StageName: $default
+      Tags:
+        Project: AnswerNow
+        Environment: prod
+        ManagedBy: SAM
+        Owner: Jason
 
   AnswerNowApiFunction:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: answernow-api-dev
+      FunctionName: answernow-api-prod
       CodeUri: ../../AnswerNow.Api/
       Handler: AnswerNow.Api
+
+      Tags:
+        Project: AnswerNow
+        Environment: prod
+        ManagedBy: SAM
+        Owner: Jason
 
       Events:
         ProxyApi:
@@ -59,44 +65,45 @@ Resources:
               Action:
                 - secretsmanager:GetSecretValue
                 - kms:Decrypt
-              Resource: "*"
+              Resource:
+                - !Ref DbSecretArn
+                - !Ref JwtSecretArn
 
       LoggingConfig:
         LogFormat: JSON
 
-      VpcConfig:
-        SubnetIds:
-          - subnet-0c3dd7b54240a5b4b
-          - subnet-0c5f1f239704e31d8
-        SecurityGroupIds:
-          - sg-04aa15969df7ed3b2
+      # IMPORTANT: no VpcConfig in PROD (prevents endpoint/NAT costs)
 
       Environment:
         Variables:
-          ConnectionStrings__Default: "{{resolve:secretsmanager:answernow/db/dev:SecretString:ConnectionString}}"
-          Jwt__SecretKey: "{{resolve:secretsmanager:answernow/jwt/dev:SecretString:SecretKey}}"
+          ConnectionStrings__Default: !Sub "{{resolve:secretsmanager:${DbSecretArn}:SecretString:ConnectionString}}"
+          Jwt__SecretKey: !Sub "{{resolve:secretsmanager:${JwtSecretArn}:SecretString:SecretKey}}"
 
   AnswerNowApiLogGroup:
     Type: AWS::Logs::LogGroup
+    DependsOn: AnswerNowApiFunction
     Properties:
-      LogGroupName: !Sub /aws/lambda/${AnswerNowApiFunction}
-      RetentionInDays: 7
+      LogGroupName: /aws/lambda/answernow-api-prod
+      RetentionInDays: 30
+      Tags:
+        - Key: Project
+          Value: AnswerNow
+        - Key: Environment
+          Value: prod
+        - Key: ManagedBy
+          Value: SAM
+        - Key: Owner
+          Value: Jason
 
 Outputs:
   ApiInvokeUrl:
     Description: HTTP API invoke base URL
     Value: !Sub "https://${AnswerNowHttpApi}.execute-api.${AWS::Region}.amazonaws.com"
-    Export:
-      Name: !Sub "answernow-${AWS::StackName}-ApiInvokeUrl"
 
   LambdaFunctionName:
     Description: Lambda function name
     Value: !Ref AnswerNowApiFunction
-    Export:
-      Name: !Sub "answernow-${AWS::StackName}-LambdaFunctionName"
 
   HttpApiId:
     Description: HTTP API id
     Value: !Ref AnswerNowHttpApi
-    Export:
-      Name: !Sub "answernow-${AWS::StackName}-HttpApiId"

@@ -1,0 +1,107 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: AnswerNow Backend - DEV (HTTP API + Lambda, .NET 8)
+
+Globals:
+  Function:
+    Runtime: dotnet8
+    Architectures:
+      - x86_64
+    MemorySize: 512
+    Timeout: 30
+    Tracing: Active
+    Environment:
+      Variables:
+        ASPNETCORE_ENVIRONMENT: DEV
+        DOTNET_ENVIRONMENT: DEV
+
+Parameters:
+  DbSecretArn:
+    Type: String
+    Description: ARN of Secrets Manager secret containing ConnectionString key
+
+  JwtSecretArn:
+    Type: String
+    Description: ARN of Secrets Manager secret containing SecretKey key
+
+Resources:
+
+  AnswerNowHttpApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      StageName: $default
+      Tags:
+        Project: AnswerNow
+        Environment: dev
+        ManagedBy: SAM
+        Owner: Jason
+
+  AnswerNowApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: answernow-api-dev
+      CodeUri: ../../AnswerNow.Api/
+      Handler: AnswerNow.Api
+      Tags:
+        Project: AnswerNow
+        Environment: dev
+        ManagedBy: SAM
+        Owner: Jason
+
+      Events:
+        ProxyApi:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref AnswerNowHttpApi
+            Path: /{proxy+}
+            Method: ANY
+
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - secretsmanager:GetSecretValue
+                - kms:Decrypt
+              Resource:
+                - !Ref DbSecretArn
+                - !Ref JwtSecretArn
+
+      LoggingConfig:
+        LogFormat: JSON
+
+      Environment:
+        Variables:
+          # Used ARN parameters so dev/prod are template-driven
+          ConnectionStrings__Default: !Sub "{{resolve:secretsmanager:${DbSecretArn}:SecretString:ConnectionString}}"
+          Jwt__SecretKey: !Sub "{{resolve:secretsmanager:${JwtSecretArn}:SecretString:SecretKey}}"
+
+  AnswerNowApiLogGroup:
+    Type: AWS::Logs::LogGroup
+    DependsOn: AnswerNowApiFunction
+    Properties:
+      LogGroupName: /aws/lambda/answernow-api-dev
+      RetentionInDays: 7
+      Tags:
+        - Key: Project
+          Value: AnswerNow
+        - Key: Environment
+          Value: dev
+        - Key: ManagedBy
+          Value: SAM
+        - Key: Owner
+          Value: Jason
+
+Outputs:
+  ApiInvokeUrl:
+    Description: HTTP API invoke base URL
+    Value: !Sub "https://${AnswerNowHttpApi}.execute-api.${AWS::Region}.amazonaws.com"
+
+  LambdaFunctionName:
+    Description: Lambda function name
+    Value: !Ref AnswerNowApiFunction
+
+  HttpApiId:
+    Description: HTTP API id
+    Value: !Ref AnswerNowHttpApi
