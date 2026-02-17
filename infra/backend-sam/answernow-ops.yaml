@@ -7,10 +7,6 @@ Parameters:
     AllowedValues: [dev, qa, prod]
     Description: Deployment environment
 
-  AppStackName:
-    Type: String
-    Description: CloudFormation stack name of the AnswerNow application stack
-
   AlertEmail:
     Type: String
     Description: Email address for operational alerts
@@ -23,6 +19,14 @@ Parameters:
     Type: Number
     Default: 25
     Description: Monthly AWS budget limit in USD
+
+  LambdaFunctionName:
+    Type: String
+    Description: Lambda function name to monitor (e.g., answernow-api-prod)
+
+  HttpApiId:
+    Type: String
+    Description: API Gateway HTTP API id to monitor (e.g., xw4nmbbm2h)
 
   HttpApiStageName:
     Type: String
@@ -37,7 +41,7 @@ Parameters:
   RdsFreeStorageThresholdBytes:
     Type: Number
     Default: 5368709120
-    Description: Free storage threshold in bytes for RDS alarm
+    Description: Free storage threshold in bytes for RDS alarm (default 5GB)
 
 Conditions:
   HasRds: !Not [!Equals [!Ref RdsDbInstanceIdentifier, ""]]
@@ -48,6 +52,15 @@ Resources:
     Type: AWS::SNS::Topic
     Properties:
       TopicName: !Sub answernow-${EnvName}-alerts
+      Tags:
+        - Key: Project
+          Value: AnswerNow
+        - Key: Environment
+          Value: !Ref EnvName
+        - Key: ManagedBy
+          Value: CloudFormation
+        - Key: Owner
+          Value: Jason
 
   AlarmTopicEmailSubscription:
     Type: AWS::SNS::Subscription
@@ -91,70 +104,104 @@ Resources:
             - SubscriptionType: EMAIL
               Address: !Ref AlertEmail
 
+  # -----------------------------
+  # Lambda alarms
+  # -----------------------------
+
   LambdaErrorsAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
       AlarmName: !Sub answernow-${EnvName}-lambda-errors
+      AlarmDescription: "Lambda Errors > 0 (5 min)"
       Namespace: AWS/Lambda
       MetricName: Errors
       Dimensions:
         - Name: FunctionName
-          Value: !ImportValue
-            'Fn::Sub': 'answernow-${AppStackName}-LambdaFunctionName'
+          Value: !Ref LambdaFunctionName
       Statistic: Sum
       Period: 300
-      EvaluationPeriods: 2
-      Threshold: 1
+      EvaluationPeriods: 1
+      Threshold: 0
       ComparisonOperator: GreaterThanThreshold
       TreatMissingData: notBreaching
       AlarmActions:
+        - !Ref AlarmTopic
+      OKActions:
         - !Ref AlarmTopic
 
   LambdaThrottlesAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
       AlarmName: !Sub answernow-${EnvName}-lambda-throttles
+      AlarmDescription: "Lambda Throttles > 0 (5 min)"
       Namespace: AWS/Lambda
       MetricName: Throttles
       Dimensions:
         - Name: FunctionName
-          Value: !ImportValue
-            'Fn::Sub': 'answernow-${AppStackName}-LambdaFunctionName'
+          Value: !Ref LambdaFunctionName
       Statistic: Sum
       Period: 300
-      EvaluationPeriods: 2
-      Threshold: 1
+      EvaluationPeriods: 1
+      Threshold: 0
       ComparisonOperator: GreaterThanThreshold
       TreatMissingData: notBreaching
       AlarmActions:
         - !Ref AlarmTopic
 
-  HttpApi5xxAlarm:
+  LambdaDurationP95Alarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
-      AlarmName: !Sub answernow-${EnvName}-httpapi-5xx
-      Namespace: AWS/ApiGateway
-      MetricName: 5xx
+      AlarmName: !Sub answernow-${EnvName}-lambda-duration-p95
+      AlarmDescription: "Lambda Duration p95 > 2000ms (5 min)"
+      Namespace: AWS/Lambda
+      MetricName: Duration
       Dimensions:
-        - Name: ApiId
-          Value: !ImportValue
-            'Fn::Sub': 'answernow-${AppStackName}-HttpApiId'
-        - Name: Stage
-          Value: !Ref HttpApiStageName
-      Statistic: Sum
+        - Name: FunctionName
+          Value: !Ref LambdaFunctionName
+      ExtendedStatistic: p95
       Period: 300
-      EvaluationPeriods: 2
-      Threshold: 1
+      EvaluationPeriods: 1
+      Threshold: 2000
       ComparisonOperator: GreaterThanThreshold
       TreatMissingData: notBreaching
       AlarmActions:
         - !Ref AlarmTopic
+
+  # -----------------------------
+  # HTTP API alarms
+  # -----------------------------
+
+  HttpApi5xxAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: !Sub answernow-${EnvName}-httpapi-5xx
+      AlarmDescription: "HTTP API 5XX errors > 0 (5 min)"
+      Namespace: AWS/ApiGateway
+      MetricName: 5XXError
+      Dimensions:
+        - Name: ApiId
+          Value: !Ref HttpApiId
+        - Name: Stage
+          Value: !Ref HttpApiStageName
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 1
+      Threshold: 0
+      ComparisonOperator: GreaterThanThreshold
+      TreatMissingData: notBreaching
+      AlarmActions:
+        - !Ref AlarmTopic
+
+  # -----------------------------
+  # RDS alarms (optional)
+  # -----------------------------
 
   RdsCpuHighAlarm:
     Condition: HasRds
     Type: AWS::CloudWatch::Alarm
     Properties:
       AlarmName: !Sub answernow-${EnvName}-rds-cpu-high
+      AlarmDescription: "RDS CPU > 70% (10 min)"
       Namespace: AWS/RDS
       MetricName: CPUUtilization
       Dimensions:
@@ -174,6 +221,7 @@ Resources:
     Type: AWS::CloudWatch::Alarm
     Properties:
       AlarmName: !Sub answernow-${EnvName}-rds-free-storage-low
+      AlarmDescription: "RDS FreeStorageSpace low"
       Namespace: AWS/RDS
       MetricName: FreeStorageSpace
       Dimensions:

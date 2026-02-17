@@ -1,22 +1,22 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: AnswerNow - Database Stack (DEV) - Postgres RDS in private subnets
+Description: AnswerNow - Database Stack (PROD) - Postgres RDS in private subnets
 
 Parameters:
   VpcId:
     Type: String
-    Default: vpc-0e19b6b5a3b3ffecf
+    Description: VPC Id for the database
 
   PrivateSubnet1Id:
     Type: String
-    Default: subnet-0c3dd7b54240a5b4b
+    Description: Private Subnet 1 Id
 
   PrivateSubnet2Id:
     Type: String
-    Default: subnet-0c5f1f239704e31d8
+    Description: Private Subnet 2 Id
 
   RdsSecurityGroupId:
     Type: String
-    Default: sg-0483cb81e96e86539
+    Description: Security group that allows Postgres inbound (usually from Lambda SG)
 
   DbName:
     Type: String
@@ -46,7 +46,7 @@ Parameters:
     Type: Number
     Default: 20
     MinValue: 20
-    MaxValue: 100
+    MaxValue: 200
 
 Resources:
   DbSubnetGroup:
@@ -58,11 +58,11 @@ Resources:
         - Ref: PrivateSubnet2Id
       Tags:
         - Key: Name
-          Value: answernow-db-subnet-group-dev
+          Value: answernow-db-subnet-group-prod
         - Key: Project
           Value: AnswerNow
         - Key: Environment
-          Value: dev
+          Value: prod
         - Key: ManagedBy
           Value: CloudFormation
         - Key: Owner
@@ -72,7 +72,7 @@ Resources:
     Type: AWS::RDS::DBInstance
     Properties:
       Engine: postgres
-      DBInstanceIdentifier: answernow-postgres-dev
+      DBInstanceIdentifier: answernow-postgres-prod
       DBName:
         Ref: DbName
       MasterUsername:
@@ -85,11 +85,12 @@ Resources:
         Ref: AllocatedStorageGb
       StorageType: gp3
 
+      # Production-ish defaults (still cost-conscious)
       PubliclyAccessible: false
       MultiAZ: false
       StorageEncrypted: true
-      BackupRetentionPeriod: 1
-      DeletionProtection: false
+      BackupRetentionPeriod: 7
+      DeletionProtection: true
 
       VPCSecurityGroups:
         - Ref: RdsSecurityGroupId
@@ -98,11 +99,11 @@ Resources:
 
       Tags:
         - Key: Name
-          Value: answernow-postgres-dev
+          Value: answernow-postgres-prod
         - Key: Project
           Value: AnswerNow
         - Key: Environment
-          Value: dev
+          Value: prod
         - Key: ManagedBy
           Value: CloudFormation
         - Key: Owner
@@ -130,5 +131,5 @@ Outputs:
       Ref: AnswerNowPostgres
 
   DbConnectionString:
-    Description: Connection string (no password) for app configuration
+    Description: Connection string (no password)
     Value: !Sub "Host=${AnswerNowPostgres.Endpoint.Address};Port=${AnswerNowPostgres.Endpoint.Port};Database=${DbName};Username=${DbMasterUsername};SSL Mode=Require;Trust Server Certificate=true"

@@ -1,18 +1,18 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: AnswerNow - Network Stack (DEV) - VPC + 2 Private Subnets + Security Groups + VPC Endpoints
+Description: AnswerNow - Network Stack (PROD) - VPC + 2 Private Subnets + Security Groups + VPC Endpoints
 
 Parameters:
   VpcCidr:
     Type: String
-    Default: 10.0.0.0/16
+    Default: 10.1.0.0/16
 
   PrivateSubnet1Cidr:
     Type: String
-    Default: 10.0.1.0/24
+    Default: 10.1.1.0/24
 
   PrivateSubnet2Cidr:
     Type: String
-    Default: 10.0.2.0/24
+    Default: 10.1.2.0/24
 
 Resources:
 
@@ -24,11 +24,11 @@ Resources:
       EnableDnsHostnames: true
       Tags:
         - Key: Name
-          Value: answernow-vpc-dev
+          Value: answernow-vpc-prod
         - Key: Project
           Value: AnswerNow
         - Key: Environment
-          Value: dev
+          Value: prod
         - Key: ManagedBy
           Value: CloudFormation
         - Key: Owner
@@ -40,11 +40,11 @@ Resources:
       VpcId: !Ref Vpc
       Tags:
         - Key: Name
-          Value: answernow-private-rt-dev
+          Value: answernow-private-rt-prod
         - Key: Project
           Value: AnswerNow
         - Key: Environment
-          Value: dev
+          Value: prod
         - Key: ManagedBy
           Value: CloudFormation
         - Key: Owner
@@ -62,11 +62,11 @@ Resources:
       MapPublicIpOnLaunch: false
       Tags:
         - Key: Name
-          Value: answernow-private-subnet-1-dev
+          Value: answernow-private-subnet-1-prod
         - Key: Project
           Value: AnswerNow
         - Key: Environment
-          Value: dev
+          Value: prod
         - Key: ManagedBy
           Value: CloudFormation
         - Key: Owner
@@ -84,11 +84,11 @@ Resources:
       MapPublicIpOnLaunch: false
       Tags:
         - Key: Name
-          Value: answernow-private-subnet-2-dev
+          Value: answernow-private-subnet-2-prod
         - Key: Project
           Value: AnswerNow
         - Key: Environment
-          Value: dev
+          Value: prod
         - Key: ManagedBy
           Value: CloudFormation
         - Key: Owner
@@ -116,11 +116,11 @@ Resources:
           CidrIp: 0.0.0.0/0
       Tags:
         - Key: Name
-          Value: answernow-lambda-sg-dev
+          Value: answernow-lambda-sg-prod
         - Key: Project
           Value: AnswerNow
         - Key: Environment
-          Value: dev
+          Value: prod
         - Key: ManagedBy
           Value: CloudFormation
         - Key: Owner
@@ -138,11 +138,11 @@ Resources:
           SourceSecurityGroupId: !Ref LambdaSecurityGroup
       Tags:
         - Key: Name
-          Value: answernow-rds-sg-dev
+          Value: answernow-rds-sg-prod
         - Key: Project
           Value: AnswerNow
         - Key: Environment
-          Value: dev
+          Value: prod
         - Key: ManagedBy
           Value: CloudFormation
         - Key: Owner
@@ -163,11 +163,11 @@ Resources:
           CidrIp: 0.0.0.0/0
       Tags:
         - Key: Name
-          Value: answernow-endpoints-sg-dev
+          Value: answernow-endpoints-sg-prod
         - Key: Project
           Value: AnswerNow
         - Key: Environment
-          Value: dev
+          Value: prod
         - Key: ManagedBy
           Value: CloudFormation
         - Key: Owner

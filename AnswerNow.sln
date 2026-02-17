@@ -27,9 +27,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "infra", "infra", "{0851D69C
 	ProjectSection(SolutionItems) = preProject
 		infra\backend-sam\answernow-ops.yaml = infra\backend-sam\answernow-ops.yaml
 		infra\cloudformation\database-dev.yaml = infra\cloudformation\database-dev.yaml
+		infra\cloudformation\database-prod.yaml = infra\cloudformation\database-prod.yaml
 		infra\cloudformation\network-dev.yaml = infra\cloudformation\network-dev.yaml
+		infra\cloudformation\network-prod.yaml = infra\cloudformation\network-prod.yaml
 		infra\backend-sam\samconfig.toml = infra\backend-sam\samconfig.toml
-		infra\backend-sam\template.yaml = infra\backend-sam\template.yaml
+		infra\backend-sam\template-dev.yaml = infra\backend-sam\template-dev.yaml
+		infra\backend-sam\template-prod.yaml = infra\backend-sam\template-prod.yaml
 	EndProjectSection
 EndProject
 Global
