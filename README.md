@@ -20,7 +20,8 @@ The AWS environment includes:
 
 For a full technical breakdown, see:
 
-➡️ **docs/architecture.md**
+➡️ **docs/architecture.md**  
+
 ➡️ **docs/aws-deployment.md**
 
 ---
