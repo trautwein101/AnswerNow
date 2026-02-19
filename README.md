@@ -1,4 +1,3 @@
-
 The project follows a layered architecture separating API, business logic, and data access concerns.
 
 ---
@@ -30,7 +29,7 @@ For a full technical breakdown, see:
 - Layered clean architecture
 - JWT-based authentication
 - Environment-specific configuration
-- Automatic EF Core migrations (DEV + cloud environments)
+- Automatic EF Core migrations (DEV and cloud environments)
 - Health check endpoints
 - Serverless AWS deployment
 - Cost-conscious cloud design decisions
