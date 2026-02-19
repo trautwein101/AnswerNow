@@ -36,8 +36,11 @@ The following screenshots demonstrate the deployed production environment and op
 ### Route53 DNS Configuration
 ![Route53](images/route_53_01.jpg)
 
-### Live Swagger API (Custom Domain)
+### Live Swagger API (Custom Domain 1 of 3 )
 ![Swagger API](images/swagger_page_01.jpg)
+
+### Live Swagger API (Custom Domain 2 of 3 )
+![Swagger API](images/swagger_page_02.jpg)
 
 ---
 
