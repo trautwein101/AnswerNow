@@ -1,60 +1,103 @@
 # AWS Deployment Guide
 
 AnswerNow infrastructure is deployed using a mix of:
-- **AWS SAM** (serverless backend)
-- **CloudFormation via AWS CLI** (supporting stacks)
 
-This doc captures the commands and deployment workflow used for DEV/QA/PROD.
+- **AWS SAM** for the serverless backend (API Gateway HTTP API + Lambda + IAM permissions)
+- **CloudFormation (AWS CLI)** for supporting stacks (database/networking/operations)
+
+This document captures the commands and workflow used for **DEV / QA / PROD**.
 
 ---
 
-# Prerequisites
+## Prerequisites
 
 - AWS CLI installed
 - AWS SAM CLI installed
 - AWS credentials configured
-- Route53 hosted zone
-- ACM certificate
-- Region set to `us-west-2` for backend deployments
+- Route53 hosted zone for `answernowplace.com`
 
 ---
 
-## Verifaction Tools:
+## Regional Architecture
+
+The deployment intentionally uses two AWS regions.
+
+### us-west-2 (Oregon)
+
+Backend infrastructure:
+
+- API Gateway (HTTP API)
+- Lambda (.NET 8)
+- RDS PostgreSQL
+- AWS Secrets Manager
+- CloudWatch monitoring
+- SAM deployments
+
+### us-east-1 (N. Virginia)
+
+Frontend edge infrastructure:
+
+- ACM certificate for `answernowplace.com`
+- CloudFront distribution
+
+CloudFront requires ACM certificates to be created in **us-east-1**, which is why the frontend certificate resides there.
+
+---
+
+## Verification
+
+Confirm the required tools and credentials are available.
 
 ```bash
 aws --version
 sam --version
+aws sts get-caller-identity
 
-#Verify Credentials:
+---
 
--> aws sts get-caller-identity
+# Validation
 
-#Validate Templates:
+Before deployment, validate the SAM template.
 
+sam validate -t template-prod.yaml
 
--> sam validate -t template-prod.yaml
+---
 
+# SAM Deploy Example (DEV)
 
-##  SAM Deploy Example (DEV)
+This deploys the backend serverless stack (API Gateway + Lambda).
 
--> sam deploy \
+sam deploy \
   --template-file template-dev.yaml \
   --stack-name answernow-backend-dev \
-  --capabilities CAPABILITY_IAM
+  --capabilities CAPABILITY_IAM \
+  --region us-west-2 \
+  --parameter-overrides \
+    DbSecretArn="<DEV_DB_SECRET_ARN>" \
+    JwtSecretArn="<DEV_JWT_SECRET_ARN>"
 
-##  CloudFormation via AWS CLI (DEV)
+---
 
--> aws cloudformation deploy \
-  --template-file ---deprecated.yaml \
-  --stack-name ---deprecated \
-  --capabilities CAPABILITY_NAMED_IAM---deprecated \
+# CloudFormation Deploy Example (Supporting Stacks)
+
+Supporting stacks such as database, networking, and operations monitoring are deployed using the AWS CLI.
+
+aws cloudformation deploy \
+  --template-file <stack-template>.yaml \
+  --stack-name <stack-name> \
+  --capabilities CAPABILITY_NAMED_IAM \
   --region us-west-2 \
   --parameter-overrides Key=Value AnotherKey=Value
 
-## Deployment Notes
-- JWT secrets are injected via environment variables.
-- Database connection strings are injected via environment variables (not included in repo).
-- EF Core migrations run automatically in DEV.
+---
+
+# Deployment Notes
+
+- Secrets are stored in AWS Secrets Manager (database connection string and JWT signing key).
+- The Lambda execution role is granted least-privilege access to retrieve only the required secrets.
+- CloudFormation templates pass Secret ARNs as parameters; Lambda retrieves the secret values at runtime.
+- EF Core migrations run automatically in DEV (environment-controlled).
 - Monitoring and budget alarms are deployed through the operations stack.
+
 
 
