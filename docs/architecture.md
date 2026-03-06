@@ -18,6 +18,23 @@ Key goals:
 
 ![Architecture Diagram](images/architecture-diagram.png)
 
+## Request Flow
+1. A user accesses the application through the custom domain configured in Route53.
+
+2. Route53 directs traffic to CloudFront, which serves the Angular single-page application from an S3 static hosting bucket.
+
+3. When the Angular frontend makes an API request, the request is routed through CloudFront to API Gateway.
+
+4. API Gateway invokes the backend Lambda function running the .NET 8 Web API.
+
+5. The ASP.NET middleware processes the request, authenticates the user using JWT authentication, and routes the request to the appropriate controller.
+
+6. Controllers call business services, which interact with repositories using EF Core to query or update the PostgreSQL database hosted in Amazon RDS.
+
+7. The response flows back through Lambda → API Gateway → CloudFront → the Angular client.
+
+8. Operational monitoring is handled by CloudWatch alarms, which can trigger SNS notifications and budget alerts if thresholds are exceeded.
+
 ---
 
 The following screenshots demonstrate the deployed production environment and operational monitoring configuration.
