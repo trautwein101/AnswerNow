@@ -22,7 +22,7 @@ This document captures the commands and workflow used for **DEV / QA / PROD**.
 
 The deployment intentionally uses two AWS regions.
 
-### us-west-2 (Oregon)
+### us-west-2 (Oregon) 
 
 Backend infrastructure:
 
