@@ -48,7 +48,6 @@ CloudFront requires ACM certificates to be created in **us-east-1**, which is wh
 
 Confirm the required tools and credentials are available.
 
-```bash
 aws --version
 sam --version
 aws sts get-caller-identity
